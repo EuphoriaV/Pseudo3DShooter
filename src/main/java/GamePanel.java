@@ -32,7 +32,7 @@ public class GamePanel extends JPanel {
             int dx = (int) (cursor.getX() - MouseInfo.getPointerInfo().getLocation().getX()), dy = (int) (cursor.getY() - MouseInfo.getPointerInfo().getLocation().getY());
             if (Math.abs(dx) < width / 4 && Math.abs(dy) < height / 4) {
                 game.getPlayer().setAlpha(game.getPlayer().getAlpha() - Math.PI * ((double) dx / (double) width));
-                vertical = Math.max(Math.min(vertical + cursor.getY() - MouseInfo.getPointerInfo().getLocation().getY(), 9 * (double) height / 10), (double) height / 10);
+                // vertical = Math.max(Math.min(vertical + cursor.getY() - MouseInfo.getPointerInfo().getLocation().getY(), 9 * (double) height / 10), (double) height / 10);
             }
             cursor = MouseInfo.getPointerInfo().getLocation();
             if (cursor.getX() < (double) width / 10 || cursor.getX() > 9 * (double) width / 10) {
@@ -65,13 +65,13 @@ public class GamePanel extends JPanel {
         }
         double coef = (double) (height / 6) / (double) game.HEIGHT;
         g2d.setPaint(Color.BLACK);
-        g2d.fillRect(0, 0, height/ 6, height / 6);
+        g2d.fillRect(0, 0, height / 6, height / 6);
         g2d.setPaint(Color.WHITE);
         g2d.fillOval((int) (game.getPlayer().getPosition().getX() * coef) - 3,
                 (int) (game.getPlayer().getPosition().getY() * coef) - 3, 6, 6);
         for (MyPolygon polygon : game.getPolygons()) {
-            for (int j = 0; j < polygon.getPoints().size(); j++) {
-                MyLine wall = new MyLine(polygon.getPoints().get(j), polygon.getPoints().get((j + 1) % polygon.getPoints().size()));
+            for (int j = 0; j < polygon.getPoints().size() - 1; j++) {
+                MyLine wall = new MyLine(polygon.getPoints().get(j), polygon.getPoints().get(j + 1));
                 g2d.drawLine((int) (wall.getA().getX() * coef),
                         (int) (wall.getA().getY() * coef),
                         (int) (wall.getB().getX() * coef),
@@ -84,5 +84,8 @@ public class GamePanel extends JPanel {
                     (int) (2 * circle.radius * coef),
                     (int) (2 * circle.radius * coef));
         }
+        g2d.setStroke(new BasicStroke(2));
+        g2d.drawLine(width / 2, height / 2 - 5, width / 2, height / 2 + 5);
+        g2d.drawLine(width / 2 - 5, height / 2, width / 2 + 5, height / 2);
     }
 }

@@ -4,7 +4,7 @@ import java.util.List;
 
 public class Game {
     final int COUNT_OF_LINES = 1000;
-    final int LENGTH_OF_LINE = 500;
+    final int LENGTH_OF_LINE = 400;
     final double SLOW_SPEED = 1;
     final int WIDTH = 500;
     final int HEIGHT = 500;
@@ -36,21 +36,22 @@ public class Game {
         polygons.add(new MyPolygon(List.of(new MyPoint(WIDTH - 50, 100), new MyPoint(WIDTH - 50, HEIGHT - 100))));
         polygons.add(new MyPolygon(List.of(new MyPoint(99, 0), new MyPoint(WIDTH - 99, 0))));
         polygons.add(new MyPolygon(List.of(new MyPoint(99, HEIGHT), new MyPoint(WIDTH - 99, HEIGHT))));
-        polygons.add(new MyPolygon(List.of(new MyPoint(120, 50), new MyPoint(380, 50), new MyPoint(380, 40), new MyPoint(120, 40))));
-        polygons.add(new MyPolygon(List.of(new MyPoint(120, HEIGHT - 50), new MyPoint(380, HEIGHT - 50), new MyPoint(380, HEIGHT - 40), new MyPoint(120, HEIGHT - 40))));
-        polygons.add(new MyPolygon(List.of(new MyPoint(100, 100), new MyPoint(150, 100), new MyPoint(150, 200), new MyPoint(100, 200))));
-        polygons.add(new MyPolygon(List.of(new MyPoint(WIDTH - 100, HEIGHT - 100), new MyPoint(WIDTH - 150, HEIGHT - 100), new MyPoint(WIDTH - 150, HEIGHT - 200), new MyPoint(WIDTH - 100, HEIGHT - 200))));
-        polygons.add(new MyPolygon(List.of(new MyPoint(110, 350), new MyPoint(140, 350), new MyPoint(140, 380), new MyPoint(110, 380))));
-        polygons.add(new MyPolygon(List.of(new MyPoint(WIDTH - 110, HEIGHT - 350), new MyPoint(WIDTH - 140, HEIGHT - 350), new MyPoint(WIDTH - 140, HEIGHT - 380), new MyPoint(WIDTH - 110, HEIGHT - 380))));
-        polygons.add(new MyPolygon(List.of(new MyPoint(240, 80), new MyPoint(340, 80), new MyPoint(340, 100), new MyPoint(240, 100))));
-        polygons.add(new MyPolygon(List.of(new MyPoint(WIDTH - 240, HEIGHT - 80), new MyPoint(WIDTH - 340, HEIGHT - 80), new MyPoint(WIDTH - 340, HEIGHT - 100), new MyPoint(WIDTH - 240, HEIGHT - 100))));
+        polygons.add(new MyPolygon(List.of(new MyPoint(200, 250), new MyPoint(250, 220), new MyPoint(300, 250), new MyPoint(250, 280), new MyPoint(200, 250))));
+        polygons.add(new MyPolygon(List.of(new MyPoint(120, 50), new MyPoint(380, 50), new MyPoint(380, 40), new MyPoint(120, 40), new MyPoint(120, 50))));
+        polygons.add(new MyPolygon(List.of(new MyPoint(120, HEIGHT - 50), new MyPoint(380, HEIGHT - 50), new MyPoint(380, HEIGHT - 40), new MyPoint(120, HEIGHT - 40), new MyPoint(120, HEIGHT - 50))));
+        polygons.add(new MyPolygon(List.of(new MyPoint(100, 100), new MyPoint(150, 100), new MyPoint(150, 200), new MyPoint(100, 200), new MyPoint(100, 100))));
+        polygons.add(new MyPolygon(List.of(new MyPoint(WIDTH - 100, HEIGHT - 100), new MyPoint(WIDTH - 150, HEIGHT - 100), new MyPoint(WIDTH - 150, HEIGHT - 200), new MyPoint(WIDTH - 100, HEIGHT - 200), new MyPoint(WIDTH - 100, HEIGHT - 100))));
+        polygons.add(new MyPolygon(List.of(new MyPoint(110, 350), new MyPoint(140, 350), new MyPoint(140, 380), new MyPoint(110, 380), new MyPoint(110, 350))));
+        polygons.add(new MyPolygon(List.of(new MyPoint(WIDTH - 110, HEIGHT - 350), new MyPoint(WIDTH - 140, HEIGHT - 350), new MyPoint(WIDTH - 140, HEIGHT - 380), new MyPoint(WIDTH - 110, HEIGHT - 380), new MyPoint(WIDTH - 110, HEIGHT - 350))));
+        polygons.add(new MyPolygon(List.of(new MyPoint(240, 80), new MyPoint(340, 80), new MyPoint(340, 100), new MyPoint(240, 100), new MyPoint(240, 80))));
+        polygons.add(new MyPolygon(List.of(new MyPoint(WIDTH - 240, HEIGHT - 80), new MyPoint(WIDTH - 340, HEIGHT - 80), new MyPoint(WIDTH - 340, HEIGHT - 100), new MyPoint(WIDTH - 240, HEIGHT - 100), new MyPoint(WIDTH - 240, HEIGHT - 80))));
         Timer timer = new Timer(7, null);
         timer.addActionListener(e -> {
             for (int i = 0; i < COUNT_OF_LINES; i++) {
                 lines[i] = MyMath.lineByStartAndAngle(player.getPosition(), player.getAlpha() - VISION / 2 + (DELTA * i), LENGTH_OF_LINE);
                 for (MyPolygon polygon : polygons) {
-                    for (int j = 0; j < polygon.getPoints().size(); j++) {
-                        MyLine wall = new MyLine(polygon.getPoints().get(j), polygon.getPoints().get((j + 1) % polygon.getPoints().size()));
+                    for (int j = 0; j < polygon.getPoints().size() - 1; j++) {
+                        MyLine wall = new MyLine(polygon.getPoints().get(j), polygon.getPoints().get(j + 1));
                         MyPoint intersection = MyMath.lineAndLine(lines[i], wall);
                         if (intersection != null) {
                             if (MyMath.dist(player.getPosition(), intersection) < MyMath.length(lines[i])) {
@@ -94,8 +95,8 @@ public class Game {
         MyLine line = MyMath.lineByStartAndAngle(player.getPosition(), angle, 50);
         MyLine curWall = null;
         for (MyPolygon polygon : polygons) {
-            for (int j = 0; j < polygon.getPoints().size(); j++) {
-                MyLine wall = new MyLine(polygon.getPoints().get(j), polygon.getPoints().get((j + 1) % polygon.getPoints().size()));
+            for (int j = 0; j < polygon.getPoints().size() - 1; j++) {
+                MyLine wall = new MyLine(polygon.getPoints().get(j), polygon.getPoints().get(j + 1));
                 MyPoint intersection = MyMath.lineAndLine(line, wall);
                 if (intersection != null) {
                     if (MyMath.dist(player.getPosition(), intersection) < MyMath.length(line)) {
@@ -125,8 +126,8 @@ public class Game {
         }
         double minX = Integer.MIN_VALUE, maxX = Integer.MAX_VALUE, minY = Integer.MIN_VALUE, maxY = Integer.MAX_VALUE;
         for (MyPolygon polygon : polygons) {
-            for (int j = 0; j < polygon.getPoints().size(); j++) {
-                MyLine wall = new MyLine(polygon.getPoints().get(j), polygon.getPoints().get((j + 1) % polygon.getPoints().size()));
+            for (int j = 0; j < polygon.getPoints().size() - 1; j++) {
+                MyLine wall = new MyLine(polygon.getPoints().get(j), polygon.getPoints().get(j + 1));
                 MyLine perp = MyMath.perpendicular(newPosition, wall);
                 if (MyMath.lineAndLine(perp, wall) != null && MyMath.length(perp) < D_SHTRIH / 2) {
                     double perpAngle = MyMath.getAngle(perp);
