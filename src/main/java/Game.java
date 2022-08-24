@@ -17,8 +17,10 @@ public class Game {
     final Camera player;
     final MyTexture WOOD = new MyTexture("wood.png"), BOARD = new MyTexture("board.png"), STONE = new MyTexture("stone.png"),
             FEDYAS_FRONT = new MyTexture("fedyas_front.png", true), FEDYAS_BACK = new MyTexture("fedyas_back.png", true),
-            FEDYAS_RIGHT = new MyTexture("fedyas_right.png", true), FEDYAS_LEFT = new MyTexture("fedyas_left.png", true),
-            OXXXYMIRON = new MyTexture("oxxxymiron.png", true);
+            FEDYAS_SIDE = new MyTexture("fedyas_side.png", true), DIMAS_FRONT = new MyTexture("dimas_front.png", true),
+            DIMAS_BACK = new MyTexture("dimas_back.png", true), DIMAS_SIDE = new MyTexture("dimas_side.png", true),
+            PASHAS_FRONT = new MyTexture("pashas_front.png", true), PASHAS_BACK = new MyTexture("pashas_back.png", true),
+            PASHAS_SIDE = new MyTexture("pashas_side.png", true), OXXXYMIRON = new MyTexture("oxxxymiron.png", true);
     private boolean forward, backward, left, right;
 
     public Game() {
@@ -33,11 +35,20 @@ public class Game {
         circles.add(new MyCircle(new MyPoint(WIDTH - 130, HEIGHT - 280), 20, WOOD));
 
         circles.add(new MyCircle(new MyPoint(245, HEIGHT - 20), 10, OXXXYMIRON));
+        circles.add(new MyCircle(new MyPoint(245, 20), 10, OXXXYMIRON));
 
-        polygons.add(new MyPolygon(List.of(new MyPoint(245, 15), new MyPoint(245, 25)), FEDYAS_FRONT));
-        polygons.add(new MyPolygon(List.of(new MyPoint(245, 15), new MyPoint(255, 15)), FEDYAS_LEFT));
-        polygons.add(new MyPolygon(List.of(new MyPoint(255, 25), new MyPoint(255, 15)), FEDYAS_BACK));
-        polygons.add(new MyPolygon(List.of(new MyPoint(245, 25), new MyPoint(255, 25)), FEDYAS_RIGHT));
+        polygons.add(new MyPolygon(List.of(new MyPoint(245, 205), new MyPoint(245, 215)), FEDYAS_FRONT));
+        polygons.add(new MyPolygon(List.of(new MyPoint(245, 205), new MyPoint(255, 205)), FEDYAS_SIDE));
+        polygons.add(new MyPolygon(List.of(new MyPoint(255, 215), new MyPoint(255, 205)), FEDYAS_BACK));
+        polygons.add(new MyPolygon(List.of(new MyPoint(245, 215), new MyPoint(255, 215)), FEDYAS_SIDE));
+        polygons.add(new MyPolygon(List.of(new MyPoint(245, 285), new MyPoint(245, 295)), DIMAS_FRONT));
+        polygons.add(new MyPolygon(List.of(new MyPoint(245, 285), new MyPoint(255, 285)), DIMAS_SIDE));
+        polygons.add(new MyPolygon(List.of(new MyPoint(255, 295), new MyPoint(255, 285)), DIMAS_BACK));
+        polygons.add(new MyPolygon(List.of(new MyPoint(245, 295), new MyPoint(255, 295)), DIMAS_SIDE));
+        polygons.add(new MyPolygon(List.of(new MyPoint(245, 245), new MyPoint(245, 255)), PASHAS_FRONT));
+        polygons.add(new MyPolygon(List.of(new MyPoint(245, 245), new MyPoint(255, 245)), PASHAS_SIDE));
+        polygons.add(new MyPolygon(List.of(new MyPoint(255, 255), new MyPoint(255, 245)), PASHAS_BACK));
+        polygons.add(new MyPolygon(List.of(new MyPoint(245, 255), new MyPoint(255, 255)), PASHAS_SIDE));
 
         polygons.add(new MyPolygon(List.of(new MyPoint(99, 50), new MyPoint(99, 0)), BOARD));
         polygons.add(new MyPolygon(List.of(new MyPoint(WIDTH - 99, 50), new MyPoint(WIDTH - 99, 0)), BOARD));
@@ -48,7 +59,6 @@ public class Game {
         polygons.add(new MyPolygon(List.of(new MyPoint(99, 0), new MyPoint(WIDTH - 99, 0)), BOARD));
         polygons.add(new MyPolygon(List.of(new MyPoint(99, HEIGHT), new MyPoint(WIDTH - 99, HEIGHT)), BOARD));
 
-        polygons.add(new MyPolygon(List.of(new MyPoint(200, 250), new MyPoint(250, 220), new MyPoint(300, 250), new MyPoint(250, 280), new MyPoint(200, 250)), STONE));
         polygons.add(new MyPolygon(List.of(new MyPoint(120, 50), new MyPoint(380, 50), new MyPoint(380, 40), new MyPoint(120, 40), new MyPoint(120, 50)), STONE));
         polygons.add(new MyPolygon(List.of(new MyPoint(120, HEIGHT - 50), new MyPoint(380, HEIGHT - 50), new MyPoint(380, HEIGHT - 40), new MyPoint(120, HEIGHT - 40), new MyPoint(120, HEIGHT - 50)), STONE));
         polygons.add(new MyPolygon(List.of(new MyPoint(100, 100), new MyPoint(150, 100), new MyPoint(150, 200), new MyPoint(100, 200), new MyPoint(100, 100)), STONE));
