@@ -4,57 +4,70 @@ import java.util.List;
 
 public class Game {
     final int COUNT_OF_LINES = 1000;
-    final int LENGTH_OF_LINE = 400;
+    final int LENGTH_OF_LINE = 700;
     final double SLOW_SPEED = 1;
     final int WIDTH = 500;
     final int HEIGHT = 500;
     final double VISION = 2 * Math.PI / 3;
     final double D_SHTRIH = 10;
     final double DELTA = VISION / (double) COUNT_OF_LINES;
-
+    final MyLine[] lines = new MyLine[COUNT_OF_LINES];
+    final ArrayList<MyPolygon> polygons = new ArrayList<>();
+    final ArrayList<MyCircle> circles = new ArrayList<>();
+    final Camera player;
+    final MyTexture WOOD = new MyTexture("wood.png"), BOARD = new MyTexture("board.png"), STONE = new MyTexture("stone.png"),
+            FEDYAS_FRONT = new MyTexture("fedyas_front.png", true), FEDYAS_BACK = new MyTexture("fedyas_back.png", true),
+            FEDYAS_RIGHT = new MyTexture("fedyas_right.png", true), FEDYAS_LEFT = new MyTexture("fedyas_left.png", true),
+            OXXXYMIRON = new MyTexture("oxxxymiron.png", true);
     private boolean forward, backward, left, right;
-    private final MyLine[] lines = new MyLine[COUNT_OF_LINES];
-    private final ArrayList<MyPolygon> polygons = new ArrayList<>();
-    private final ArrayList<MyCircle> circles = new ArrayList<>();
-    private final Camera player;
 
     public Game() {
-        player = new Camera(new MyPoint(60, 250), Math.PI / 2);
-        circles.add(new MyCircle(new MyPoint(50, 50), 50));
-        circles.add(new MyCircle(new MyPoint(50, HEIGHT - 50), 50));
-        circles.add(new MyCircle(new MyPoint(WIDTH - 50, HEIGHT - 50), 50));
-        circles.add(new MyCircle(new MyPoint(WIDTH - 50, 50), 50));
-        circles.add(new MyCircle(new MyPoint(130, 280), 20));
-        circles.add(new MyCircle(new MyPoint(WIDTH - 130, HEIGHT - 280), 20));
-        circles.add(new MyCircle(new MyPoint(250, 20), 5));
-        circles.add(new MyCircle(new MyPoint(250, HEIGHT - 20), 5));
-        polygons.add(new MyPolygon(List.of(new MyPoint(99, 50), new MyPoint(99, 0))));
-        polygons.add(new MyPolygon(List.of(new MyPoint(WIDTH - 99, 50), new MyPoint(WIDTH - 99, 0))));
-        polygons.add(new MyPolygon(List.of(new MyPoint(99, HEIGHT - 50), new MyPoint(99, HEIGHT))));
-        polygons.add(new MyPolygon(List.of(new MyPoint(WIDTH - 99, HEIGHT - 50), new MyPoint(WIDTH - 99, HEIGHT))));
-        polygons.add(new MyPolygon(List.of(new MyPoint(50, 100), new MyPoint(50, HEIGHT - 100))));
-        polygons.add(new MyPolygon(List.of(new MyPoint(WIDTH - 50, 100), new MyPoint(WIDTH - 50, HEIGHT - 100))));
-        polygons.add(new MyPolygon(List.of(new MyPoint(99, 0), new MyPoint(WIDTH - 99, 0))));
-        polygons.add(new MyPolygon(List.of(new MyPoint(99, HEIGHT), new MyPoint(WIDTH - 99, HEIGHT))));
-        polygons.add(new MyPolygon(List.of(new MyPoint(200, 250), new MyPoint(250, 220), new MyPoint(300, 250), new MyPoint(250, 280), new MyPoint(200, 250))));
-        polygons.add(new MyPolygon(List.of(new MyPoint(120, 50), new MyPoint(380, 50), new MyPoint(380, 40), new MyPoint(120, 40), new MyPoint(120, 50))));
-        polygons.add(new MyPolygon(List.of(new MyPoint(120, HEIGHT - 50), new MyPoint(380, HEIGHT - 50), new MyPoint(380, HEIGHT - 40), new MyPoint(120, HEIGHT - 40), new MyPoint(120, HEIGHT - 50))));
-        polygons.add(new MyPolygon(List.of(new MyPoint(100, 100), new MyPoint(150, 100), new MyPoint(150, 200), new MyPoint(100, 200), new MyPoint(100, 100))));
-        polygons.add(new MyPolygon(List.of(new MyPoint(WIDTH - 100, HEIGHT - 100), new MyPoint(WIDTH - 150, HEIGHT - 100), new MyPoint(WIDTH - 150, HEIGHT - 200), new MyPoint(WIDTH - 100, HEIGHT - 200), new MyPoint(WIDTH - 100, HEIGHT - 100))));
-        polygons.add(new MyPolygon(List.of(new MyPoint(110, 350), new MyPoint(140, 350), new MyPoint(140, 380), new MyPoint(110, 380), new MyPoint(110, 350))));
-        polygons.add(new MyPolygon(List.of(new MyPoint(WIDTH - 110, HEIGHT - 350), new MyPoint(WIDTH - 140, HEIGHT - 350), new MyPoint(WIDTH - 140, HEIGHT - 380), new MyPoint(WIDTH - 110, HEIGHT - 380), new MyPoint(WIDTH - 110, HEIGHT - 350))));
-        polygons.add(new MyPolygon(List.of(new MyPoint(240, 80), new MyPoint(340, 80), new MyPoint(340, 100), new MyPoint(240, 100), new MyPoint(240, 80))));
-        polygons.add(new MyPolygon(List.of(new MyPoint(WIDTH - 240, HEIGHT - 80), new MyPoint(WIDTH - 340, HEIGHT - 80), new MyPoint(WIDTH - 340, HEIGHT - 100), new MyPoint(WIDTH - 240, HEIGHT - 100), new MyPoint(WIDTH - 240, HEIGHT - 80))));
+        player = new Camera(new MyPoint(60, 250), 0);
+
+        circles.add(new MyCircle(new MyPoint(50, 50), 50, WOOD));
+        circles.add(new MyCircle(new MyPoint(50, HEIGHT - 50), 50, WOOD));
+        circles.add(new MyCircle(new MyPoint(WIDTH - 50, HEIGHT - 50), 50, WOOD));
+        circles.add(new MyCircle(new MyPoint(WIDTH - 50, 50), 50, WOOD));
+
+        circles.add(new MyCircle(new MyPoint(130, 280), 20, WOOD));
+        circles.add(new MyCircle(new MyPoint(WIDTH - 130, HEIGHT - 280), 20, WOOD));
+
+        circles.add(new MyCircle(new MyPoint(245, HEIGHT - 20), 10, OXXXYMIRON));
+
+        polygons.add(new MyPolygon(List.of(new MyPoint(245, 15), new MyPoint(245, 25)), FEDYAS_FRONT));
+        polygons.add(new MyPolygon(List.of(new MyPoint(245, 15), new MyPoint(255, 15)), FEDYAS_LEFT));
+        polygons.add(new MyPolygon(List.of(new MyPoint(255, 25), new MyPoint(255, 15)), FEDYAS_BACK));
+        polygons.add(new MyPolygon(List.of(new MyPoint(245, 25), new MyPoint(255, 25)), FEDYAS_RIGHT));
+
+        polygons.add(new MyPolygon(List.of(new MyPoint(99, 50), new MyPoint(99, 0)), BOARD));
+        polygons.add(new MyPolygon(List.of(new MyPoint(WIDTH - 99, 50), new MyPoint(WIDTH - 99, 0)), BOARD));
+        polygons.add(new MyPolygon(List.of(new MyPoint(99, HEIGHT - 50), new MyPoint(99, HEIGHT)), BOARD));
+        polygons.add(new MyPolygon(List.of(new MyPoint(WIDTH - 99, HEIGHT - 50), new MyPoint(WIDTH - 99, HEIGHT)), BOARD));
+        polygons.add(new MyPolygon(List.of(new MyPoint(50, 100), new MyPoint(50, HEIGHT - 100)), BOARD));
+        polygons.add(new MyPolygon(List.of(new MyPoint(WIDTH - 50, 100), new MyPoint(WIDTH - 50, HEIGHT - 100)), BOARD));
+        polygons.add(new MyPolygon(List.of(new MyPoint(99, 0), new MyPoint(WIDTH - 99, 0)), BOARD));
+        polygons.add(new MyPolygon(List.of(new MyPoint(99, HEIGHT), new MyPoint(WIDTH - 99, HEIGHT)), BOARD));
+
+        polygons.add(new MyPolygon(List.of(new MyPoint(200, 250), new MyPoint(250, 220), new MyPoint(300, 250), new MyPoint(250, 280), new MyPoint(200, 250)), STONE));
+        polygons.add(new MyPolygon(List.of(new MyPoint(120, 50), new MyPoint(380, 50), new MyPoint(380, 40), new MyPoint(120, 40), new MyPoint(120, 50)), STONE));
+        polygons.add(new MyPolygon(List.of(new MyPoint(120, HEIGHT - 50), new MyPoint(380, HEIGHT - 50), new MyPoint(380, HEIGHT - 40), new MyPoint(120, HEIGHT - 40), new MyPoint(120, HEIGHT - 50)), STONE));
+        polygons.add(new MyPolygon(List.of(new MyPoint(100, 100), new MyPoint(150, 100), new MyPoint(150, 200), new MyPoint(100, 200), new MyPoint(100, 100)), STONE));
+        polygons.add(new MyPolygon(List.of(new MyPoint(WIDTH - 100, HEIGHT - 100), new MyPoint(WIDTH - 150, HEIGHT - 100), new MyPoint(WIDTH - 150, HEIGHT - 200), new MyPoint(WIDTH - 100, HEIGHT - 200), new MyPoint(WIDTH - 100, HEIGHT - 100)), STONE));
+        polygons.add(new MyPolygon(List.of(new MyPoint(110, 350), new MyPoint(140, 350), new MyPoint(140, 380), new MyPoint(110, 380), new MyPoint(110, 350)), STONE));
+        polygons.add(new MyPolygon(List.of(new MyPoint(WIDTH - 110, HEIGHT - 350), new MyPoint(WIDTH - 140, HEIGHT - 350), new MyPoint(WIDTH - 140, HEIGHT - 380), new MyPoint(WIDTH - 110, HEIGHT - 380), new MyPoint(WIDTH - 110, HEIGHT - 350)), STONE));
+        polygons.add(new MyPolygon(List.of(new MyPoint(240, 80), new MyPoint(340, 80), new MyPoint(340, 100), new MyPoint(240, 100), new MyPoint(240, 80)), STONE));
+        polygons.add(new MyPolygon(List.of(new MyPoint(WIDTH - 240, HEIGHT - 80), new MyPoint(WIDTH - 340, HEIGHT - 80), new MyPoint(WIDTH - 340, HEIGHT - 100), new MyPoint(WIDTH - 240, HEIGHT - 100), new MyPoint(WIDTH - 240, HEIGHT - 80)), STONE));
+
         Timer timer = new Timer(7, null);
         timer.addActionListener(e -> {
             for (int i = 0; i < COUNT_OF_LINES; i++) {
-                lines[i] = MyMath.lineByStartAndAngle(player.getPosition(), player.getAlpha() - VISION / 2 + (DELTA * i), LENGTH_OF_LINE);
+                lines[i] = MyMath.lineByStartAndAngle(player.position, player.getAlpha() - VISION / 2 + (DELTA * i), LENGTH_OF_LINE);
                 for (MyPolygon polygon : polygons) {
-                    for (int j = 0; j < polygon.getPoints().size() - 1; j++) {
-                        MyLine wall = new MyLine(polygon.getPoints().get(j), polygon.getPoints().get(j + 1));
+                    for (int j = 0; j < polygon.points.size() - 1; j++) {
+                        MyLine wall = new MyLine(polygon.points.get(j), polygon.points.get(j + 1));
                         MyPoint intersection = MyMath.lineAndLine(lines[i], wall);
                         if (intersection != null) {
-                            if (MyMath.dist(player.getPosition(), intersection) < MyMath.length(lines[i])) {
+                            if (MyMath.dist(player.position, intersection) < MyMath.length(lines[i])) {
                                 lines[i].setB(intersection);
                             }
                         }
@@ -63,7 +76,7 @@ public class Game {
                 for (MyCircle circle : circles) {
                     MyPoint intersection = MyMath.lineAndCircle(lines[i], circle);
                     if (intersection != null) {
-                        if (MyMath.dist(player.getPosition(), intersection) < MyMath.length(lines[i])) {
+                        if (MyMath.dist(player.position, intersection) < MyMath.length(lines[i])) {
                             lines[i].setB(intersection);
                         }
                     }
@@ -92,14 +105,14 @@ public class Game {
     }
 
     public void move(double angle) {
-        MyLine line = MyMath.lineByStartAndAngle(player.getPosition(), angle, 50);
+        MyLine line = MyMath.lineByStartAndAngle(player.position, angle, 50);
         MyLine curWall = null;
         for (MyPolygon polygon : polygons) {
-            for (int j = 0; j < polygon.getPoints().size() - 1; j++) {
-                MyLine wall = new MyLine(polygon.getPoints().get(j), polygon.getPoints().get(j + 1));
+            for (int j = 0; j < polygon.points.size() - 1; j++) {
+                MyLine wall = new MyLine(polygon.points.get(j), polygon.points.get(j + 1));
                 MyPoint intersection = MyMath.lineAndLine(line, wall);
                 if (intersection != null) {
-                    if (MyMath.dist(player.getPosition(), intersection) < MyMath.length(line)) {
+                    if (MyMath.dist(player.position, intersection) < MyMath.length(line)) {
                         line.setB(intersection);
                         curWall = wall;
                     }
@@ -109,29 +122,29 @@ public class Game {
         for (MyCircle circle : circles) {
             MyPoint intersection = MyMath.lineAndCircle(line, circle);
             if (intersection != null) {
-                if (MyMath.dist(player.getPosition(), intersection) < MyMath.length(line)) {
+                if (MyMath.dist(player.position, intersection) < MyMath.length(line)) {
                     line.setB(intersection);
-                    MyLine first = MyMath.lineByStartAndAngle(intersection, MyMath.getAngle(new MyLine(player.getPosition(), intersection)) + Math.PI / 2, 50);
-                    MyLine second = MyMath.lineByStartAndAngle(intersection, MyMath.getAngle(new MyLine(player.getPosition(), intersection)) - Math.PI / 2, 50);
+                    MyLine first = MyMath.lineByStartAndAngle(intersection, MyMath.getAngle(new MyLine(player.position, intersection)) + Math.PI / 2, 50);
+                    MyLine second = MyMath.lineByStartAndAngle(intersection, MyMath.getAngle(new MyLine(player.position, intersection)) - Math.PI / 2, 50);
                     curWall = new MyLine(first.getB(), second.getB());
                 }
             }
         }
-        MyPoint newPosition = new MyPoint(player.getPosition().getX() + Math.sin(Math.PI / 2 - angle) / SLOW_SPEED, player.getPosition().getY() + Math.cos(Math.PI / 2 - angle) / SLOW_SPEED);
-        if (curWall != null && MyMath.length(MyMath.perpendicular(newPosition, curWall)) < D_SHTRIH / 2) {
+        MyPoint newPosition = new MyPoint(player.position.getX() + Math.sin(Math.PI / 2 - angle) / SLOW_SPEED, player.position.getY() + Math.cos(Math.PI / 2 - angle) / SLOW_SPEED);
+        if (curWall != null && MyMath.length(MyMath.perpendicular(newPosition, curWall)) < D_SHTRIH / 4) {
             MyLine proection = MyMath.proection(line, curWall);
             double dx = proection.getB().getX() - proection.getA().getX(), dy = proection.getB().getY() - proection.getA().getY();
-            newPosition.setX(player.getPosition().getX() + dx / (MyMath.length(line) * SLOW_SPEED));
-            newPosition.setY(player.getPosition().getY() + dy / (MyMath.length(line) * SLOW_SPEED));
+            newPosition.setX(player.position.getX() + dx / (MyMath.length(line) * SLOW_SPEED));
+            newPosition.setY(player.position.getY() + dy / (MyMath.length(line) * SLOW_SPEED));
         }
         double minX = Integer.MIN_VALUE, maxX = Integer.MAX_VALUE, minY = Integer.MIN_VALUE, maxY = Integer.MAX_VALUE;
         for (MyPolygon polygon : polygons) {
-            for (int j = 0; j < polygon.getPoints().size() - 1; j++) {
-                MyLine wall = new MyLine(polygon.getPoints().get(j), polygon.getPoints().get(j + 1));
+            for (int j = 0; j < polygon.points.size() - 1; j++) {
+                MyLine wall = new MyLine(polygon.points.get(j), polygon.points.get(j + 1));
                 MyLine perp = MyMath.perpendicular(newPosition, wall);
-                if (MyMath.lineAndLine(perp, wall) != null && MyMath.length(perp) < D_SHTRIH / 2) {
+                if (MyMath.lineAndLine(perp, wall) != null && MyMath.length(perp) < D_SHTRIH / 4) {
                     double perpAngle = MyMath.getAngle(perp);
-                    MyPoint newPoint = MyMath.lineByStartAndAngle(perp.getB(), perpAngle + Math.PI, D_SHTRIH / 2).getB();
+                    MyPoint newPoint = MyMath.lineByStartAndAngle(perp.getB(), perpAngle + Math.PI, D_SHTRIH / 4).getB();
                     if (minX < newPoint.getX()) {
                         minX = newPoint.getX();
                     }
@@ -149,8 +162,8 @@ public class Game {
         }
         for (MyCircle circle : circles) {
             double dist = MyMath.dist(newPosition, circle.center) - circle.radius;
-            if (Math.abs(dist) < D_SHTRIH / 2) {
-                double length = dist < 0 ? circle.radius - D_SHTRIH / 2 : circle.radius + D_SHTRIH / 2;
+            if (Math.abs(dist) < D_SHTRIH / 4) {
+                double length = dist < 0 ? circle.radius - D_SHTRIH / 4 : circle.radius + D_SHTRIH / 4;
                 MyPoint newPoint = MyMath.lineByStartAndAngle(circle.center, MyMath.getAngle(new MyLine(circle.center, newPosition)), length).getB();
                 if (minX < newPoint.getX()) {
                     minX = newPoint.getX();
@@ -167,10 +180,10 @@ public class Game {
             }
         }
         if (minX <= maxX) {
-            player.getPosition().setX(Math.min(maxX, Math.max(minX, newPosition.getX())));
+            player.position.setX(Math.min(maxX, Math.max(minX, newPosition.getX())));
         }
         if (minY <= maxY) {
-            player.getPosition().setY(Math.min(maxY, Math.max(minY, newPosition.getY())));
+            player.position.setY(Math.min(maxY, Math.max(minY, newPosition.getY())));
         }
     }
 
@@ -204,21 +217,5 @@ public class Game {
 
     public void stopMovingRight() {
         right = false;
-    }
-
-    public MyLine[] getLines() {
-        return lines;
-    }
-
-    public ArrayList<MyPolygon> getPolygons() {
-        return polygons;
-    }
-
-    public ArrayList<MyCircle> getCircles() {
-        return circles;
-    }
-
-    public Camera getPlayer() {
-        return player;
     }
 }

@@ -14,5 +14,7 @@ public class MyLine {
         return b;
     }
 
-    public void setB(MyPoint b) { this.b = b; }
+    public void setB(MyPoint b) {
+        this.b = b;
+    }
 }

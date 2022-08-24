@@ -1,13 +1,11 @@
 import java.util.List;
 
 public class MyPolygon {
-    private final List<MyPoint> points;
+    final List<MyPoint> points;
+    final MyTexture texture;
 
-    public MyPolygon(List<MyPoint> list) {
+    public MyPolygon(List<MyPoint> list, MyTexture texture) {
         this.points = list;
-    }
-
-    public List<MyPoint> getPoints() {
-        return points;
+        this.texture = texture;
     }
 }

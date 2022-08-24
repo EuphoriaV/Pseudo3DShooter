@@ -4,8 +4,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 public class GameFrame extends JFrame {
-    private final GamePanel gamePanel;
-
     public GameFrame(Game game) {
         addKeyListener(new KeyListener() {
             @Override
@@ -52,8 +50,7 @@ public class GameFrame extends JFrame {
         int height = (int) screenSize.getHeight();
         setUndecorated(true);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
-        gamePanel = new GamePanel(width, height, game);
-        add(gamePanel);
+        add(new GamePanel(width, height, game));
         pack();
         setVisible(true);
     }

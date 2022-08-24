@@ -3,13 +3,12 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class GamePanel extends JPanel {
-    final BufferedImage CURSOR_IMG = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
-    final Cursor BLANK_CURSOR = Toolkit.getDefaultToolkit().createCustomCursor(CURSOR_IMG, new Point(0, 0), "blank cursor");
-
-    private final Game game;
-    private final int width, height;
+    final BufferedImage BLANK_IMG = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
+    final Cursor BLANK_CURSOR = Toolkit.getDefaultToolkit().createCustomCursor(BLANK_IMG, new Point(0, 0), "blank cursor");
+    final Game game;
+    final int width, height;
+    final double vertical;
     private Point cursor;
-    private double vertical;
     private Robot robot;
 
     public GamePanel(int width, int height, Game game) {
@@ -31,8 +30,7 @@ public class GamePanel extends JPanel {
         timer.addActionListener(e -> {
             int dx = (int) (cursor.getX() - MouseInfo.getPointerInfo().getLocation().getX()), dy = (int) (cursor.getY() - MouseInfo.getPointerInfo().getLocation().getY());
             if (Math.abs(dx) < width / 4 && Math.abs(dy) < height / 4) {
-                game.getPlayer().setAlpha(game.getPlayer().getAlpha() - Math.PI * ((double) dx / (double) width));
-                // vertical = Math.max(Math.min(vertical + cursor.getY() - MouseInfo.getPointerInfo().getLocation().getY(), 9 * (double) height / 10), (double) height / 10);
+                game.player.setAlpha(game.player.getAlpha() - Math.PI * ((double) dx / (double) width));
             }
             cursor = MouseInfo.getPointerInfo().getLocation();
             if (cursor.getX() < (double) width / 10 || cursor.getX() > 9 * (double) width / 10) {
@@ -53,32 +51,58 @@ public class GamePanel extends JPanel {
         g2d.fillRect(0, (int) vertical, width, height);
         for (int pixel = 0; pixel < width; pixel++) {
             int i = (int) (Math.min(game.COUNT_OF_LINES - 1, game.COUNT_OF_LINES * ((double) pixel / (double) width)));
-            double dist = MyMath.length(game.getLines()[i]);
-            if (dist < game.LENGTH_OF_LINE - 5) {
-                g2d.setPaint(new Color((int) (100 - 100 * (dist / game.LENGTH_OF_LINE)), 0, (int) (150 - 150 * (dist / game.LENGTH_OF_LINE))));
-            } else {
-                g2d.setPaint(Color.BLACK);
+            MyLine curLine = game.lines[i];
+            double numOfColumn = -1;
+            double dist = MyMath.length(curLine);
+            outbreak:
+            for (MyPolygon polygon : game.polygons) {
+                for (int j = 0; j < polygon.points.size() - 1; j++) {
+                    MyLine wall = new MyLine(polygon.points.get(j), polygon.points.get(j + 1));
+                    if (MyMath.pointInLine(curLine.getB(), wall)) {
+                        if (polygon.texture.stretched) {
+                            numOfColumn = MyMath.dist(wall.getA(), curLine.getB()) / MyMath.length(wall);
+                        } else {
+                            numOfColumn = MyMath.dist(wall.getA(), curLine.getB()) / 30;
+                        }
+                        double heightOnScreen = height * game.D_SHTRIH / dist;
+                        g2d.drawImage(polygon.texture.getImage()[(int) (numOfColumn * polygon.texture.getImage().length) % polygon.texture.getImage().length], pixel, (int) vertical - (int) heightOnScreen, 1, 2 * (int) heightOnScreen, null);
+                        break outbreak;
+                    }
+                }
             }
-            double heightOnScreen = height * game.D_SHTRIH / dist;
-            g2d.drawLine(pixel, (int) vertical, pixel, (int) vertical + (int) heightOnScreen);
-            g2d.drawLine(pixel, (int) vertical, pixel, (int) vertical - (int) heightOnScreen);
+            if (numOfColumn == -1) {
+                for (MyCircle circle : game.circles) {
+                    if (MyMath.pointInCircle(curLine.getB(), circle)) {
+                        double angle = MyMath.getAngle(new MyLine(circle.center, curLine.getB()));
+                        angle += Math.PI;
+                        if (circle.texture.stretched) {
+                            numOfColumn = 0.5 * angle / Math.PI;
+                        } else {
+                            numOfColumn = 4 * angle / Math.PI;
+                        }
+                        double heightOnScreen = height * game.D_SHTRIH / dist;
+                        g2d.drawImage(circle.texture.getImage()[(int) (numOfColumn * circle.texture.getImage().length) % circle.texture.getImage().length], pixel, (int) vertical - (int) heightOnScreen, 1, 2 * (int) heightOnScreen, null);
+                        break;
+                    }
+                }
+            }
         }
         double coef = (double) (height / 6) / (double) game.HEIGHT;
         g2d.setPaint(Color.BLACK);
         g2d.fillRect(0, 0, height / 6, height / 6);
         g2d.setPaint(Color.WHITE);
-        g2d.fillOval((int) (game.getPlayer().getPosition().getX() * coef) - 3,
-                (int) (game.getPlayer().getPosition().getY() * coef) - 3, 6, 6);
-        for (MyPolygon polygon : game.getPolygons()) {
-            for (int j = 0; j < polygon.getPoints().size() - 1; j++) {
-                MyLine wall = new MyLine(polygon.getPoints().get(j), polygon.getPoints().get(j + 1));
+        g2d.fillOval((int) (game.player.position.getX() * coef) - 3,
+                (int) (game.player.position.getY() * coef) - 3, 6, 6);
+        for (MyPolygon polygon : game.polygons) {
+            for (int j = 0; j < polygon.points.size() - 1; j++) {
+                MyLine wall = new MyLine(polygon.points.get(j), polygon.points.get(j + 1));
                 g2d.drawLine((int) (wall.getA().getX() * coef),
                         (int) (wall.getA().getY() * coef),
                         (int) (wall.getB().getX() * coef),
                         (int) (wall.getB().getY() * coef));
             }
         }
-        for (MyCircle circle : game.getCircles()) {
+        for (MyCircle circle : game.circles) {
             g2d.drawOval((int) ((circle.center.getX() - circle.radius) * coef),
                     (int) ((circle.center.getY() - circle.radius) * coef),
                     (int) (2 * circle.radius * coef),

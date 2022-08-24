@@ -1,5 +1,5 @@
 public class Camera {
-    private final MyPoint position;
+    final MyPoint position;
     private double alpha;
 
     public Camera(MyPoint point, double alpha) {
@@ -13,9 +13,5 @@ public class Camera {
 
     public void setAlpha(double alpha) {
         this.alpha = alpha;
-    }
-
-    public MyPoint getPosition() {
-        return position;
     }
 }
