@@ -30,7 +30,7 @@ public class GamePanel extends JPanel {
         timer.addActionListener(e -> {
             int dx = (int) (cursor.getX() - MouseInfo.getPointerInfo().getLocation().getX()), dy = (int) (cursor.getY() - MouseInfo.getPointerInfo().getLocation().getY());
             if (Math.abs(dx) < width / 4 && Math.abs(dy) < height / 4) {
-                game.player.setAlpha(game.player.getAlpha() - Math.PI * ((double) dx / (double) width));
+                game.turn(- Math.PI * ((double) dx / (double) width), game.mainPlayer);
             }
             cursor = MouseInfo.getPointerInfo().getLocation();
             if (cursor.getX() < (double) width / 10 || cursor.getX() > 9 * (double) width / 10) {
@@ -71,6 +71,28 @@ public class GamePanel extends JPanel {
                 }
             }
             if (numOfColumn == -1) {
+                outbreak:
+                for (Player player : game.players) {
+                    if (!player.equals(game.mainPlayer)) {
+                        for (MyPolygon polygon : player.sides) {
+                            for (int j = 0; j < polygon.points.size() - 1; j++) {
+                                MyLine wall = new MyLine(polygon.points.get(j), polygon.points.get(j + 1));
+                                if (MyMath.pointInLine(curLine.getB(), wall)) {
+                                    if (polygon.texture.stretched) {
+                                        numOfColumn = MyMath.dist(wall.getA(), curLine.getB()) / MyMath.length(wall);
+                                    } else {
+                                        numOfColumn = MyMath.dist(wall.getA(), curLine.getB()) / 30;
+                                    }
+                                    double heightOnScreen = height * game.D_SHTRIH / dist;
+                                    g2d.drawImage(polygon.texture.getImage()[(int) (numOfColumn * polygon.texture.getImage().length) % polygon.texture.getImage().length], pixel, (int) vertical - (int) heightOnScreen, 1, 2 * (int) heightOnScreen, null);
+                                    break outbreak;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (numOfColumn == -1) {
                 for (MyCircle circle : game.circles) {
                     if (MyMath.pointInCircle(curLine.getB(), circle)) {
                         double angle = MyMath.getAngle(new MyLine(circle.center, curLine.getB()));
@@ -91,8 +113,6 @@ public class GamePanel extends JPanel {
         g2d.setPaint(Color.BLACK);
         g2d.fillRect(0, 0, height / 6, height / 6);
         g2d.setPaint(Color.WHITE);
-        g2d.fillOval((int) (game.player.position.getX() * coef) - 3,
-                (int) (game.player.position.getY() * coef) - 3, 6, 6);
         for (MyPolygon polygon : game.polygons) {
             for (int j = 0; j < polygon.points.size() - 1; j++) {
                 MyLine wall = new MyLine(polygon.points.get(j), polygon.points.get(j + 1));
@@ -102,6 +122,23 @@ public class GamePanel extends JPanel {
                         (int) (wall.getB().getY() * coef));
             }
         }
+        for (Player player : game.players) {
+            if(player.equals(game.mainPlayer)){
+                g2d.setPaint(Color.GREEN);
+            } else {
+                g2d.setPaint(Color.RED);
+            }
+            for (MyPolygon polygon : player.sides) {
+                for (int j = 0; j < polygon.points.size() - 1; j++) {
+                    MyLine wall = new MyLine(polygon.points.get(j), polygon.points.get(j + 1));
+                    g2d.drawLine((int) (wall.getA().getX() * coef),
+                            (int) (wall.getA().getY() * coef),
+                            (int) (wall.getB().getX() * coef),
+                            (int) (wall.getB().getY() * coef));
+                }
+            }
+        }
+        g2d.setPaint(Color.WHITE);
         for (MyCircle circle : game.circles) {
             g2d.drawOval((int) ((circle.center.getX() - circle.radius) * coef),
                     (int) ((circle.center.getY() - circle.radius) * coef),
