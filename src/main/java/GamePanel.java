@@ -1,5 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 
 public class GamePanel extends JPanel {
@@ -10,6 +12,7 @@ public class GamePanel extends JPanel {
     final double vertical;
     private Point cursor;
     private Robot robot;
+    private double gunY, gunYNum = Math.PI;
 
     public GamePanel(int width, int height, Game game) {
         try {
@@ -22,15 +25,44 @@ public class GamePanel extends JPanel {
         this.width = width;
         this.height = height;
         this.game = game;
+        gunY = 2 * height / 3;
         vertical = (double) height / 2;
         setCursor(BLANK_CURSOR);
         setLayout(null);
         setPreferredSize(new Dimension(width, height));
+        addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                game.shoot(game.mainPlayer);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+            }
+        });
         Timer timer = new Timer(7, null);
         timer.addActionListener(e -> {
+            if (game.isMoving()) {
+                gunYNum += 0.2;
+            } else if (Math.cos(gunYNum) >= -0.98) {
+                gunYNum += 0.2;
+            }
+            gunY = 13 * height / 24 + Math.cos(gunYNum) * height / 24;
             int dx = (int) (cursor.getX() - MouseInfo.getPointerInfo().getLocation().getX()), dy = (int) (cursor.getY() - MouseInfo.getPointerInfo().getLocation().getY());
             if (Math.abs(dx) < width / 4 && Math.abs(dy) < height / 4) {
-                game.turn(- Math.PI * ((double) dx / (double) width), game.mainPlayer);
+                game.turn(-Math.PI * ((double) dx / (double) width), game.mainPlayer);
             }
             cursor = MouseInfo.getPointerInfo().getLocation();
             if (cursor.getX() < (double) width / 10 || cursor.getX() > 9 * (double) width / 10) {
@@ -123,7 +155,7 @@ public class GamePanel extends JPanel {
             }
         }
         for (Player player : game.players) {
-            if(player.equals(game.mainPlayer)){
+            if (player.equals(game.mainPlayer)) {
                 g2d.setPaint(Color.GREEN);
             } else {
                 g2d.setPaint(Color.RED);
@@ -148,5 +180,13 @@ public class GamePanel extends JPanel {
         g2d.setStroke(new BasicStroke(2));
         g2d.drawLine(width / 2, height / 2 - 5, width / 2, height / 2 + 5);
         g2d.drawLine(width / 2 - 5, height / 2, width / 2 + 5, height / 2);
+        g2d.drawImage(new ImageIcon("images/gun.png").getImage(), 2 * width / 3, (int) gunY + height / 6, width / 3, height / 3, null);
+        g2d.setFont(new Font("Verdana", Font.BOLD, 72));
+        g2d.drawString(String.valueOf(game.mainPlayer.weapon.getAmmo()), width / 50, 89 * height / 100);
+        g2d.drawImage(new ImageIcon("images/ammo.png").getImage(), 0, 84 * height / 100, width / 50, height / 20, null);
+        g2d.setPaint(new Color(200 - 2 * game.mainPlayer.getHealth(), 2 * game.mainPlayer.getHealth(), 0));
+        g2d.fillRect(width / 100, 92 * height / 100, game.mainPlayer.getHealth() * width / 1000, height / 20);
+        g2d.setPaint(Color.WHITE);
+        g2d.drawRect(width / 100, 92 * height / 100, width / 10, height / 20);
     }
 }

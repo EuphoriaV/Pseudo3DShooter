@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Game {
     final int COUNT_OF_LINES = 1000;
@@ -16,6 +17,8 @@ public class Game {
     final ArrayList<MyCircle> circles = new ArrayList<>();
     final ArrayList<Player> players = new ArrayList<>();
     final Player mainPlayer;
+    final double[] moveAngles = new double[3];
+    final double[] turnAngles = new double[3];
     final MyTexture WOOD = new MyTexture("wood.png"), BOARD = new MyTexture("board.png"), STONE = new MyTexture("stone.png"),
             FEDYAS_FRONT = new MyTexture("fedyas_front.png", true), FEDYAS_BACK = new MyTexture("fedyas_back.png", true),
             FEDYAS_SIDE = new MyTexture("fedyas_side.png", true), DIMAS_FRONT = new MyTexture("dimas_front.png", true),
@@ -29,7 +32,7 @@ public class Game {
         players.add(new Player(new Camera(new MyPoint(250, 210), 0), FEDYAS_FRONT, FEDYAS_BACK, FEDYAS_SIDE, FEDYAS_SIDE));
         players.add(new Player(new Camera(new MyPoint(250, 250), 0), DIMAS_FRONT, DIMAS_BACK, DIMAS_SIDE, DIMAS_SIDE));
         players.add(new Player(new Camera(new MyPoint(250, 290), 0), PASHAS_FRONT, PASHAS_BACK, PASHAS_SIDE, PASHAS_SIDE));
-        mainPlayer = players.get(0);
+        mainPlayer = players.get(3);
 
         circles.add(new MyCircle(new MyPoint(50, 50), 50, WOOD));
         circles.add(new MyCircle(new MyPoint(50, HEIGHT - 50), 50, WOOD));
@@ -59,9 +62,23 @@ public class Game {
         polygons.add(new MyPolygon(List.of(new MyPoint(WIDTH - 110, HEIGHT - 350), new MyPoint(WIDTH - 140, HEIGHT - 350), new MyPoint(WIDTH - 140, HEIGHT - 380), new MyPoint(WIDTH - 110, HEIGHT - 380), new MyPoint(WIDTH - 110, HEIGHT - 350)), STONE));
         polygons.add(new MyPolygon(List.of(new MyPoint(240, 80), new MyPoint(340, 80), new MyPoint(340, 100), new MyPoint(240, 100), new MyPoint(240, 80)), STONE));
         polygons.add(new MyPolygon(List.of(new MyPoint(WIDTH - 240, HEIGHT - 80), new MyPoint(WIDTH - 340, HEIGHT - 80), new MyPoint(WIDTH - 340, HEIGHT - 100), new MyPoint(WIDTH - 240, HEIGHT - 100), new MyPoint(WIDTH - 240, HEIGHT - 80)), STONE));
-
+//        Timer timer1 = new Timer(1000, null);
+//        timer1.addActionListener(e -> {
+//            for (int i = 0; i < 3; i++) {
+//                turnAngles[i] = 7 * (new Random().nextDouble() % (2 * Math.PI) - Math.PI) / 1000;
+//                moveAngles[i] = new Random().nextInt() % 8 * (Math.PI / 8);
+//            }
+//        });
+//        timer1.start();
         Timer timer = new Timer(7, null);
         timer.addActionListener(e -> {
+//            for (Player player : players) {
+//                if (!player.equals(mainPlayer)) {
+//                    turn(Math.abs(turnAngles[players.indexOf(player) - 1]), player);
+//                    move(player.camera.getAlpha() + moveAngles[players.indexOf(player) - 1], player);
+//                    shoot(player);
+//                }
+//            }
             for (int i = 0; i < COUNT_OF_LINES; i++) {
                 lines[i] = MyMath.lineByStartAndAngle(mainPlayer.camera.position, mainPlayer.camera.getAlpha() - VISION / 2 + (DELTA * i), LENGTH_OF_LINE);
                 for (MyPolygon polygon : polygons) {
@@ -97,7 +114,6 @@ public class Game {
                             lines[i].setB(intersection);
                         }
                     }
-
                 }
             }
             if (forward && !backward && left == right) {
@@ -124,6 +140,64 @@ public class Game {
     public void turn(double angle, Player turningPlayer) {
         turningPlayer.camera.setAlpha(turningPlayer.camera.getAlpha() + angle);
         turningPlayer.updateSides();
+    }
+
+    public void shoot(Player shootingPlayer) {
+        if (shootingPlayer.weapon.getAmmo() <= 0) {
+            return;
+        }
+        shootingPlayer.weapon.shoot();
+        MyLine line = MyMath.lineByStartAndAngle(shootingPlayer.camera.position, shootingPlayer.camera.getAlpha(), 500);
+        for (MyPolygon polygon : polygons) {
+            for (int j = 0; j < polygon.points.size() - 1; j++) {
+                MyLine wall = new MyLine(polygon.points.get(j), polygon.points.get(j + 1));
+                MyPoint intersection = MyMath.lineAndLine(line, wall);
+                if (intersection != null) {
+                    if (MyMath.dist(shootingPlayer.camera.position, intersection) < MyMath.length(line)) {
+                        line.setB(intersection);
+                    }
+                }
+            }
+        }
+        for (MyCircle circle : circles) {
+            MyPoint intersection = MyMath.lineAndCircle(line, circle);
+            if (intersection != null) {
+                if (MyMath.dist(shootingPlayer.camera.position, intersection) < MyMath.length(line)) {
+                    line.setB(intersection);
+                }
+            }
+        }
+        for (Player player : players) {
+            if (!player.equals(shootingPlayer)) {
+                for (MyPolygon polygon : player.sides) {
+                    for (int j = 0; j < polygon.points.size() - 1; j++) {
+                        MyLine wall = new MyLine(polygon.points.get(j), polygon.points.get(j + 1));
+                        MyPoint intersection = MyMath.lineAndLine(line, wall);
+                        if (intersection != null) {
+                            if (MyMath.dist(shootingPlayer.camera.position, intersection) < MyMath.length(line)) {
+                                line.setB(intersection);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        for (Player player : players) {
+            if (!player.equals(shootingPlayer)) {
+                for (MyPolygon polygon : player.sides) {
+                    for (int j = 0; j < polygon.points.size() - 1; j++) {
+                        MyLine wall = new MyLine(polygon.points.get(j), polygon.points.get(j + 1));
+                        if (MyMath.pointInLine(line.getB(), wall)) {
+                            player.setHealth(player.getHealth() - 30);
+                            if (player.getHealth() <= 0) {
+                                players.remove(player);
+                            }
+                            return;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public void move(double angle, Player movingPlayer) {
@@ -282,5 +356,9 @@ public class Game {
 
     public void stopMovingRight() {
         right = false;
+    }
+
+    public boolean isMoving() {
+        return forward || backward || left || right;
     }
 }

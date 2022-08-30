@@ -4,9 +4,11 @@ public class Player {
     final Camera camera;
     private int health;
     final MyPolygon[] sides = new MyPolygon[4];
+    final Weapon weapon;
 
     public Player(Camera camera, MyTexture front, MyTexture back, MyTexture left, MyTexture right) {
         this.camera = camera;
+        this.weapon = new Weapon(100);
         health = 100;
         sides[0] = new MyPolygon(List.of(new MyPoint(0, 0), new MyPoint(0, 0)), front);
         sides[1] = new MyPolygon(List.of(new MyPoint(0, 0), new MyPoint(0, 0)), back);
@@ -36,5 +38,13 @@ public class Player {
         sides[3].points.get(0).setY(fourth.getY());
         sides[3].points.get(1).setX(third.getX());
         sides[3].points.get(1).setY(third.getY());
+    }
+
+    public int getHealth() {
+        return health;
+    }
+
+    public void setHealth(int health) {
+        this.health = health;
     }
 }
