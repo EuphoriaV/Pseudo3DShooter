@@ -26,8 +26,8 @@ public class GamePanel extends JPanel {
         this.width = width;
         this.height = height;
         this.game = game;
-        dy = height / 240;
-        gunY = 17 * height / 24;
+        dy = height / 240.0;
+        gunY = 17 * height / 24.0;
         vertical = (double) height / 2;
         setCursor(BLANK_CURSOR);
         setLayout(null);
@@ -57,17 +57,17 @@ public class GamePanel extends JPanel {
         });
         Timer timer = new Timer(7, null);
         timer.addActionListener(e -> {
-            if (game.isMoving() || Math.abs(gunY - 17*height / 24) >= height/240) {
-                if (gunY >= 20 * height / 24) {
-                    dy = -height / 240;
-                } else if (gunY <= 17*height / 24) {
-                    dy = height / 240;
+            if (game.isMoving() || Math.abs(gunY - 17 * height / 24.0) >= height / 240.0) {
+                if (gunY >= 5 * height / 6.0) {
+                    dy = -height / 240.0;
+                } else if (gunY <= 17 * height / 24.0) {
+                    dy = height / 240.0;
                 }
                 gunY += dy;
             }
             if (isShooting) {
-                gunY = 2*height / 3;
-                dy = height / 240;
+                gunY = 2 * height / 3.0;
+                dy = height / 240.0;
                 isShooting = false;
             }
             int dx = (int) (cursor.getX() - MouseInfo.getPointerInfo().getLocation().getX()), dy = (int) (cursor.getY() - MouseInfo.getPointerInfo().getLocation().getY());

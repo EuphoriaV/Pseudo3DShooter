@@ -19,7 +19,7 @@ public class Game {
     final Player mainPlayer;
     final double[] moveAngles = new double[3];
     final double[] turnAngles = new double[3];
-    final MyTexture WOOD = new MyTexture("wood.png"), BOARD = new MyTexture("board.png"), STONE = new MyTexture("stone.png"),
+    final MyTexture WOOD = new MyTexture("wood.png"), BOARD = new MyTexture("board.png"), STONE = new MyTexture("stone.png"), BRICK = new MyTexture("brick.png"),
             FEDYAS_FRONT = new MyTexture("fedyas_front.png", true), FEDYAS_BACK = new MyTexture("fedyas_back.png", true),
             FEDYAS_SIDE = new MyTexture("fedyas_side.png", true), DIMAS_FRONT = new MyTexture("dimas_front.png", true),
             DIMAS_BACK = new MyTexture("dimas_back.png", true), DIMAS_SIDE = new MyTexture("dimas_side.png", true),
@@ -54,8 +54,8 @@ public class Game {
         polygons.add(new MyPolygon(List.of(new MyPoint(99, 0), new MyPoint(WIDTH - 99, 0)), BOARD));
         polygons.add(new MyPolygon(List.of(new MyPoint(99, HEIGHT), new MyPoint(WIDTH - 99, HEIGHT)), BOARD));
 
-        polygons.add(new MyPolygon(List.of(new MyPoint(120, 50), new MyPoint(380, 50), new MyPoint(380, 40), new MyPoint(120, 40), new MyPoint(120, 50)), STONE));
-        polygons.add(new MyPolygon(List.of(new MyPoint(120, HEIGHT - 50), new MyPoint(380, HEIGHT - 50), new MyPoint(380, HEIGHT - 40), new MyPoint(120, HEIGHT - 40), new MyPoint(120, HEIGHT - 50)), STONE));
+        polygons.add(new MyPolygon(List.of(new MyPoint(120, 50), new MyPoint(380, 50), new MyPoint(380, 40), new MyPoint(120, 40), new MyPoint(120, 50)), BRICK));
+        polygons.add(new MyPolygon(List.of(new MyPoint(120, HEIGHT - 50), new MyPoint(380, HEIGHT - 50), new MyPoint(380, HEIGHT - 40), new MyPoint(120, HEIGHT - 40), new MyPoint(120, HEIGHT - 50)), BRICK));
         polygons.add(new MyPolygon(List.of(new MyPoint(100, 100), new MyPoint(150, 100), new MyPoint(150, 200), new MyPoint(100, 200), new MyPoint(100, 100)), STONE));
         polygons.add(new MyPolygon(List.of(new MyPoint(WIDTH - 100, HEIGHT - 100), new MyPoint(WIDTH - 150, HEIGHT - 100), new MyPoint(WIDTH - 150, HEIGHT - 200), new MyPoint(WIDTH - 100, HEIGHT - 200), new MyPoint(WIDTH - 100, HEIGHT - 100)), STONE));
         polygons.add(new MyPolygon(List.of(new MyPoint(110, 350), new MyPoint(140, 350), new MyPoint(140, 380), new MyPoint(110, 380), new MyPoint(110, 350)), STONE));
@@ -76,7 +76,7 @@ public class Game {
                 if (!player.equals(mainPlayer)) {
                     turn(Math.abs(turnAngles[players.indexOf(player) - 1]), player);
                     move(player.camera.getAlpha() + moveAngles[players.indexOf(player) - 1], player);
-                   // shoot(player);
+                    // shoot(player);
                 }
             }
             for (int i = 0; i < COUNT_OF_LINES; i++) {
@@ -147,7 +147,7 @@ public class Game {
             return;
         }
         shootingPlayer.weapon.shoot();
-        MyLine line = MyMath.lineByStartAndAngle(shootingPlayer.camera.position, shootingPlayer.camera.getAlpha(), 500);
+        MyLine line = MyMath.lineByStartAndAngle(shootingPlayer.camera.position, shootingPlayer.camera.getAlpha(), LENGTH_OF_LINE);
         for (MyPolygon polygon : polygons) {
             for (int j = 0; j < polygon.points.size() - 1; j++) {
                 MyLine wall = new MyLine(polygon.points.get(j), polygon.points.get(j + 1));
