@@ -12,7 +12,8 @@ public class GamePanel extends JPanel {
     final double vertical;
     private Point cursor;
     private Robot robot;
-    private double gunY, gunYNum = Math.PI;
+    private double gunY, dy;
+    private boolean isShooting = false;
 
     public GamePanel(int width, int height, Game game) {
         try {
@@ -25,7 +26,8 @@ public class GamePanel extends JPanel {
         this.width = width;
         this.height = height;
         this.game = game;
-        gunY = 2 * height / 3;
+        dy = height / 240;
+        gunY = 17 * height / 24;
         vertical = (double) height / 2;
         setCursor(BLANK_CURSOR);
         setLayout(null);
@@ -38,6 +40,7 @@ public class GamePanel extends JPanel {
             @Override
             public void mousePressed(MouseEvent e) {
                 game.shoot(game.mainPlayer);
+                isShooting = true;
             }
 
             @Override
@@ -54,12 +57,19 @@ public class GamePanel extends JPanel {
         });
         Timer timer = new Timer(7, null);
         timer.addActionListener(e -> {
-            if (game.isMoving()) {
-                gunYNum += 0.2;
-            } else if (Math.cos(gunYNum) >= -0.98) {
-                gunYNum += 0.2;
+            if (game.isMoving() || Math.abs(gunY - 17*height / 24) >= height/240) {
+                if (gunY >= 20 * height / 24) {
+                    dy = -height / 240;
+                } else if (gunY <= 17*height / 24) {
+                    dy = height / 240;
+                }
+                gunY += dy;
             }
-            gunY = 13 * height / 24 + Math.cos(gunYNum) * height / 24;
+            if (isShooting) {
+                gunY = 2*height / 3;
+                dy = height / 240;
+                isShooting = false;
+            }
             int dx = (int) (cursor.getX() - MouseInfo.getPointerInfo().getLocation().getX()), dy = (int) (cursor.getY() - MouseInfo.getPointerInfo().getLocation().getY());
             if (Math.abs(dx) < width / 4 && Math.abs(dy) < height / 4) {
                 game.turn(-Math.PI * ((double) dx / (double) width), game.mainPlayer);
@@ -180,7 +190,7 @@ public class GamePanel extends JPanel {
         g2d.setStroke(new BasicStroke(2));
         g2d.drawLine(width / 2, height / 2 - 5, width / 2, height / 2 + 5);
         g2d.drawLine(width / 2 - 5, height / 2, width / 2 + 5, height / 2);
-        g2d.drawImage(new ImageIcon("images/gun.png").getImage(), 2 * width / 3, (int) gunY + height / 6, width / 3, height / 3, null);
+        g2d.drawImage(new ImageIcon("images/gun.png").getImage(), 2 * width / 3, (int) gunY, width / 3, height / 3, null);
         g2d.setFont(new Font("Verdana", Font.BOLD, 72));
         g2d.drawString(String.valueOf(game.mainPlayer.weapon.getAmmo()), width / 50, 89 * height / 100);
         g2d.drawImage(new ImageIcon("images/ammo.png").getImage(), 0, 84 * height / 100, width / 50, height / 20, null);

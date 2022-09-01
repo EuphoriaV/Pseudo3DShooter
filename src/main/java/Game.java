@@ -29,10 +29,10 @@ public class Game {
 
     public Game() {
         players.add(new Player(new Camera(new MyPoint(60, 250), 0), FEDYAS_FRONT, FEDYAS_BACK, FEDYAS_SIDE, FEDYAS_SIDE));
-        players.add(new Player(new Camera(new MyPoint(250, 210), 0), FEDYAS_FRONT, FEDYAS_BACK, FEDYAS_SIDE, FEDYAS_SIDE));
-        players.add(new Player(new Camera(new MyPoint(250, 250), 0), DIMAS_FRONT, DIMAS_BACK, DIMAS_SIDE, DIMAS_SIDE));
-        players.add(new Player(new Camera(new MyPoint(250, 290), 0), PASHAS_FRONT, PASHAS_BACK, PASHAS_SIDE, PASHAS_SIDE));
-        mainPlayer = players.get(3);
+        players.add(new Player(new Camera(new MyPoint(250, 210), Math.PI), FEDYAS_FRONT, FEDYAS_BACK, FEDYAS_SIDE, FEDYAS_SIDE));
+        players.add(new Player(new Camera(new MyPoint(250, 250), Math.PI), DIMAS_FRONT, DIMAS_BACK, DIMAS_SIDE, DIMAS_SIDE));
+        players.add(new Player(new Camera(new MyPoint(250, 290), Math.PI), PASHAS_FRONT, PASHAS_BACK, PASHAS_SIDE, PASHAS_SIDE));
+        mainPlayer = players.get(0);
 
         circles.add(new MyCircle(new MyPoint(50, 50), 50, WOOD));
         circles.add(new MyCircle(new MyPoint(50, HEIGHT - 50), 50, WOOD));
@@ -62,23 +62,23 @@ public class Game {
         polygons.add(new MyPolygon(List.of(new MyPoint(WIDTH - 110, HEIGHT - 350), new MyPoint(WIDTH - 140, HEIGHT - 350), new MyPoint(WIDTH - 140, HEIGHT - 380), new MyPoint(WIDTH - 110, HEIGHT - 380), new MyPoint(WIDTH - 110, HEIGHT - 350)), STONE));
         polygons.add(new MyPolygon(List.of(new MyPoint(240, 80), new MyPoint(340, 80), new MyPoint(340, 100), new MyPoint(240, 100), new MyPoint(240, 80)), STONE));
         polygons.add(new MyPolygon(List.of(new MyPoint(WIDTH - 240, HEIGHT - 80), new MyPoint(WIDTH - 340, HEIGHT - 80), new MyPoint(WIDTH - 340, HEIGHT - 100), new MyPoint(WIDTH - 240, HEIGHT - 100), new MyPoint(WIDTH - 240, HEIGHT - 80)), STONE));
-//        Timer timer1 = new Timer(1000, null);
-//        timer1.addActionListener(e -> {
-//            for (int i = 0; i < 3; i++) {
-//                turnAngles[i] = 7 * (new Random().nextDouble() % (2 * Math.PI) - Math.PI) / 1000;
-//                moveAngles[i] = new Random().nextInt() % 8 * (Math.PI / 8);
-//            }
-//        });
-//        timer1.start();
+        Timer timer1 = new Timer(1000, null);
+        timer1.addActionListener(e -> {
+            for (int i = 0; i < 3; i++) {
+                turnAngles[i] = 7 * (new Random().nextDouble() % (2 * Math.PI) - Math.PI) / 1000;
+                moveAngles[i] = new Random().nextInt() % 8 * (Math.PI / 8);
+            }
+        });
+        timer1.start();
         Timer timer = new Timer(7, null);
         timer.addActionListener(e -> {
-//            for (Player player : players) {
-//                if (!player.equals(mainPlayer)) {
-//                    turn(Math.abs(turnAngles[players.indexOf(player) - 1]), player);
-//                    move(player.camera.getAlpha() + moveAngles[players.indexOf(player) - 1], player);
-//                    shoot(player);
-//                }
-//            }
+            for (Player player : players) {
+                if (!player.equals(mainPlayer)) {
+                    turn(Math.abs(turnAngles[players.indexOf(player) - 1]), player);
+                    move(player.camera.getAlpha() + moveAngles[players.indexOf(player) - 1], player);
+                   // shoot(player);
+                }
+            }
             for (int i = 0; i < COUNT_OF_LINES; i++) {
                 lines[i] = MyMath.lineByStartAndAngle(mainPlayer.camera.position, mainPlayer.camera.getAlpha() - VISION / 2 + (DELTA * i), LENGTH_OF_LINE);
                 for (MyPolygon polygon : polygons) {
