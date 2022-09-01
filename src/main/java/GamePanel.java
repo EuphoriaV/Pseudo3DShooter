@@ -191,7 +191,7 @@ public class GamePanel extends JPanel {
         g2d.drawLine(width / 2, height / 2 - 5, width / 2, height / 2 + 5);
         g2d.drawLine(width / 2 - 5, height / 2, width / 2 + 5, height / 2);
         g2d.drawImage(new ImageIcon("images/gun.png").getImage(), 2 * width / 3, (int) gunY, width / 3, height / 3, null);
-        g2d.setFont(new Font("Verdana", Font.BOLD, 72));
+        g2d.setFont(new Font("Verdana", Font.BOLD, height / 20));
         g2d.drawString(String.valueOf(game.mainPlayer.weapon.getAmmo()), width / 50, 89 * height / 100);
         g2d.drawImage(new ImageIcon("images/ammo.png").getImage(), 0, 84 * height / 100, width / 50, height / 20, null);
         g2d.setPaint(new Color(200 - 2 * game.mainPlayer.getHealth(), 2 * game.mainPlayer.getHealth(), 0));
