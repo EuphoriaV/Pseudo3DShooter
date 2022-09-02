@@ -16,7 +16,6 @@ public class Game {
     final ArrayList<MyPolygon> polygons = new ArrayList<>();
     final ArrayList<MyCircle> circles = new ArrayList<>();
     final ArrayList<Player> players = new ArrayList<>();
-    final Player mainPlayer;
     final double[] moveAngles = new double[3];
     final double[] turnAngles = new double[3];
     final MyTexture WOOD = new MyTexture("wood.png"), BOARD = new MyTexture("board.png"), STONE = new MyTexture("stone.png"), BRICK = new MyTexture("brick.png"),
@@ -26,12 +25,13 @@ public class Game {
             PASHAS_FRONT = new MyTexture("pashas_front.png", true), PASHAS_BACK = new MyTexture("pashas_back.png", true),
             PASHAS_SIDE = new MyTexture("pashas_side.png", true), OXXXYMIRON = new MyTexture("oxxxymiron.png", true);
     private boolean forward, backward, left, right;
+    private Player mainPlayer;
 
     public Game() {
-        players.add(new Player(new Camera(new MyPoint(60, 250), 0), FEDYAS_FRONT, FEDYAS_BACK, FEDYAS_SIDE, FEDYAS_SIDE));
-        players.add(new Player(new Camera(new MyPoint(250, 210), Math.PI), FEDYAS_FRONT, FEDYAS_BACK, FEDYAS_SIDE, FEDYAS_SIDE));
-        players.add(new Player(new Camera(new MyPoint(250, 250), Math.PI), DIMAS_FRONT, DIMAS_BACK, DIMAS_SIDE, DIMAS_SIDE));
-        players.add(new Player(new Camera(new MyPoint(250, 290), Math.PI), PASHAS_FRONT, PASHAS_BACK, PASHAS_SIDE, PASHAS_SIDE));
+        players.add(new Player(new Camera(new MyPoint(60, 230), 0), OXXXYMIRON, OXXXYMIRON, OXXXYMIRON, OXXXYMIRON, 4));
+        players.add(new Player(new Camera(new MyPoint(250, 210), Math.PI), FEDYAS_FRONT, FEDYAS_BACK, FEDYAS_SIDE, FEDYAS_SIDE, 4));
+        players.add(new Player(new Camera(new MyPoint(250, 250), Math.PI), DIMAS_FRONT, DIMAS_BACK, DIMAS_SIDE, DIMAS_SIDE, 4));
+        players.add(new Player(new Camera(new MyPoint(250, 290), Math.PI), PASHAS_FRONT, PASHAS_BACK, PASHAS_SIDE, PASHAS_SIDE, 7));
         mainPlayer = players.get(0);
 
         circles.add(new MyCircle(new MyPoint(50, 50), 50, WOOD));
@@ -66,7 +66,7 @@ public class Game {
         timer1.addActionListener(e -> {
             for (int i = 0; i < 3; i++) {
                 turnAngles[i] = 7 * (new Random().nextDouble() % (2 * Math.PI) - Math.PI) / 1000;
-                moveAngles[i] = new Random().nextInt() % 8 * (Math.PI / 8);
+                moveAngles[i] = (double) (new Random().nextInt() % 4) * (Math.PI / 4);
             }
         });
         timer1.start();
@@ -76,45 +76,10 @@ public class Game {
                 if (!player.equals(mainPlayer)) {
                     turn(Math.abs(turnAngles[players.indexOf(player) - 1]), player);
                     move(player.camera.getAlpha() + moveAngles[players.indexOf(player) - 1], player);
-                    // shoot(player);
                 }
             }
             for (int i = 0; i < COUNT_OF_LINES; i++) {
-                lines[i] = MyMath.lineByStartAndAngle(mainPlayer.camera.position, mainPlayer.camera.getAlpha() - VISION / 2 + (DELTA * i), LENGTH_OF_LINE);
-                for (MyPolygon polygon : polygons) {
-                    for (int j = 0; j < polygon.points.size() - 1; j++) {
-                        MyLine wall = new MyLine(polygon.points.get(j), polygon.points.get(j + 1));
-                        MyPoint intersection = MyMath.lineAndLine(lines[i], wall);
-                        if (intersection != null) {
-                            if (MyMath.dist(mainPlayer.camera.position, intersection) < MyMath.length(lines[i])) {
-                                lines[i].setB(intersection);
-                            }
-                        }
-                    }
-                }
-                for (Player player : players) {
-                    if (!player.equals(mainPlayer)) {
-                        for (MyPolygon polygon : player.sides) {
-                            for (int j = 0; j < polygon.points.size() - 1; j++) {
-                                MyLine wall = new MyLine(polygon.points.get(j), polygon.points.get(j + 1));
-                                MyPoint intersection = MyMath.lineAndLine(lines[i], wall);
-                                if (intersection != null) {
-                                    if (MyMath.dist(mainPlayer.camera.position, intersection) < MyMath.length(lines[i])) {
-                                        lines[i].setB(intersection);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                for (MyCircle circle : circles) {
-                    MyPoint intersection = MyMath.lineAndCircle(lines[i], circle);
-                    if (intersection != null) {
-                        if (MyMath.dist(mainPlayer.camera.position, intersection) < MyMath.length(lines[i])) {
-                            lines[i].setB(intersection);
-                        }
-                    }
-                }
+                lines[i] = intersect(mainPlayer, mainPlayer.camera.getAlpha() - VISION / 2 + (DELTA * i));
             }
             if (forward && !backward && left == right) {
                 move(mainPlayer.camera.getAlpha(), mainPlayer);
@@ -147,41 +112,7 @@ public class Game {
             return;
         }
         shootingPlayer.weapon.shoot();
-        MyLine line = MyMath.lineByStartAndAngle(shootingPlayer.camera.position, shootingPlayer.camera.getAlpha(), LENGTH_OF_LINE);
-        for (MyPolygon polygon : polygons) {
-            for (int j = 0; j < polygon.points.size() - 1; j++) {
-                MyLine wall = new MyLine(polygon.points.get(j), polygon.points.get(j + 1));
-                MyPoint intersection = MyMath.lineAndLine(line, wall);
-                if (intersection != null) {
-                    if (MyMath.dist(shootingPlayer.camera.position, intersection) < MyMath.length(line)) {
-                        line.setB(intersection);
-                    }
-                }
-            }
-        }
-        for (MyCircle circle : circles) {
-            MyPoint intersection = MyMath.lineAndCircle(line, circle);
-            if (intersection != null) {
-                if (MyMath.dist(shootingPlayer.camera.position, intersection) < MyMath.length(line)) {
-                    line.setB(intersection);
-                }
-            }
-        }
-        for (Player player : players) {
-            if (!player.equals(shootingPlayer)) {
-                for (MyPolygon polygon : player.sides) {
-                    for (int j = 0; j < polygon.points.size() - 1; j++) {
-                        MyLine wall = new MyLine(polygon.points.get(j), polygon.points.get(j + 1));
-                        MyPoint intersection = MyMath.lineAndLine(line, wall);
-                        if (intersection != null) {
-                            if (MyMath.dist(shootingPlayer.camera.position, intersection) < MyMath.length(line)) {
-                                line.setB(intersection);
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        MyLine line = intersect(shootingPlayer, shootingPlayer.camera.getAlpha());
         for (Player player : players) {
             if (!player.equals(shootingPlayer)) {
                 for (MyPolygon polygon : player.sides) {
@@ -190,7 +121,7 @@ public class Game {
                         if (MyMath.pointInLine(line.getB(), wall)) {
                             player.setHealth(player.getHealth() - 30);
                             if (player.getHealth() <= 0) {
-                                players.remove(player);
+                                kill(player);
                             }
                             return;
                         }
@@ -200,18 +131,68 @@ public class Game {
         }
     }
 
+    public void kill(Player deadPlayer) {
+        Player newPlayer = new Player(new Camera(randomPoint(deadPlayer.size), new Random().nextDouble() % 2 * Math.PI), deadPlayer.sides[0].texture, deadPlayer.sides[2].texture, deadPlayer.sides[1].texture, deadPlayer.sides[3].texture, deadPlayer.size);
+        if (deadPlayer.equals(mainPlayer)) {
+            mainPlayer = newPlayer;
+        }
+        players.set(players.indexOf(deadPlayer), newPlayer);
+    }
+
+    public MyPoint randomPoint(double distToWall) {
+        boolean good = false;
+        double x, y;
+        MyPoint newPoint = null;
+        while (!good) {
+            good = true;
+            x = 50 + (new Random().nextInt() % WIDTH + WIDTH) % (WIDTH - 100);
+            y = 50 + (new Random().nextInt() % HEIGHT + HEIGHT) % (HEIGHT - 100);
+            newPoint = new MyPoint(x, y);
+            for (MyPolygon polygon : polygons) {
+                double minX = Integer.MAX_VALUE, minY = Integer.MAX_VALUE, maxX = Integer.MIN_VALUE, maxY = Integer.MIN_VALUE;
+                for (int j = 0; j < polygon.points.size() - 1; j++) {
+                    MyLine wall = new MyLine(polygon.points.get(j), polygon.points.get(j + 1));
+                    minX = Math.min(minX, Math.min(wall.getB().getX(), wall.getA().getX()));
+                    maxX = Math.max(maxX, Math.max(wall.getB().getX(), wall.getA().getX()));
+                    minY = Math.min(minY, Math.min(wall.getB().getY(), wall.getA().getY()));
+                    maxY = Math.max(maxY, Math.max(wall.getB().getY(), wall.getA().getY()));
+                    if (MyMath.length(MyMath.perpendicular(newPoint, wall)) < distToWall || (x <= maxX && x >= minX && y >= minY && y <= maxY)) {
+                        good = false;
+                    }
+                }
+            }
+            for (Player player : players) {
+                for (MyPolygon polygon : player.sides) {
+                    double minX = Integer.MAX_VALUE, minY = Integer.MAX_VALUE, maxX = Integer.MIN_VALUE, maxY = Integer.MIN_VALUE;
+                    for (int j = 0; j < polygon.points.size() - 1; j++) {
+                        MyLine wall = new MyLine(polygon.points.get(j), polygon.points.get(j + 1));
+                        minX = Math.min(minX, Math.min(wall.getB().getX(), wall.getA().getX()));
+                        maxX = Math.max(maxX, Math.max(wall.getB().getX(), wall.getA().getX()));
+                        minY = Math.min(minY, Math.min(wall.getB().getY(), wall.getA().getY()));
+                        maxY = Math.max(maxY, Math.max(wall.getB().getY(), wall.getA().getY()));
+                        if (MyMath.length(MyMath.perpendicular(newPoint, wall)) < distToWall || (x <= maxX && x >= minX && y >= minY && y <= maxY)) {
+                            good = false;
+                        }
+                    }
+                }
+            }
+            for (MyCircle circle : circles) {
+                if (MyMath.dist(circle.center, newPoint) < circle.radius + distToWall) {
+                    good = false;
+                }
+            }
+        }
+        return newPoint;
+    }
+
     public void move(double angle, Player movingPlayer) {
-        MyLine line = MyMath.lineByStartAndAngle(movingPlayer.camera.position, angle, 50);
+        MyLine line = intersect(movingPlayer, angle);
         MyLine curWall = null;
         for (MyPolygon polygon : polygons) {
             for (int j = 0; j < polygon.points.size() - 1; j++) {
                 MyLine wall = new MyLine(polygon.points.get(j), polygon.points.get(j + 1));
-                MyPoint intersection = MyMath.lineAndLine(line, wall);
-                if (intersection != null) {
-                    if (MyMath.dist(movingPlayer.camera.position, intersection) < MyMath.length(line)) {
-                        line.setB(intersection);
-                        curWall = wall;
-                    }
+                if (MyMath.pointInLine(line.getB(), wall)) {
+                    curWall = wall;
                 }
             }
         }
@@ -220,30 +201,22 @@ public class Game {
                 for (MyPolygon polygon : player.sides) {
                     for (int j = 0; j < polygon.points.size() - 1; j++) {
                         MyLine wall = new MyLine(polygon.points.get(j), polygon.points.get(j + 1));
-                        MyPoint intersection = MyMath.lineAndLine(line, wall);
-                        if (intersection != null) {
-                            if (MyMath.dist(movingPlayer.camera.position, intersection) < MyMath.length(line)) {
-                                line.setB(intersection);
-                                curWall = wall;
-                            }
+                        if (MyMath.pointInLine(line.getB(), wall)) {
+                            curWall = wall;
                         }
                     }
                 }
             }
         }
         for (MyCircle circle : circles) {
-            MyPoint intersection = MyMath.lineAndCircle(line, circle);
-            if (intersection != null) {
-                if (MyMath.dist(movingPlayer.camera.position, intersection) < MyMath.length(line)) {
-                    line.setB(intersection);
-                    MyLine first = MyMath.lineByStartAndAngle(intersection, MyMath.getAngle(new MyLine(movingPlayer.camera.position, intersection)) + Math.PI / 2, 50);
-                    MyLine second = MyMath.lineByStartAndAngle(intersection, MyMath.getAngle(new MyLine(movingPlayer.camera.position, intersection)) - Math.PI / 2, 50);
-                    curWall = new MyLine(first.getB(), second.getB());
-                }
+            if (MyMath.pointInCircle(line.getB(), circle)) {
+                MyLine first = MyMath.lineByStartAndAngle(line.getB(), MyMath.getAngle(new MyLine(movingPlayer.camera.position, line.getB())) + Math.PI / 2, 50);
+                MyLine second = MyMath.lineByStartAndAngle(line.getB(), MyMath.getAngle(new MyLine(movingPlayer.camera.position, line.getB())) - Math.PI / 2, 50);
+                curWall = new MyLine(first.getB(), second.getB());
             }
         }
         MyPoint newPosition = new MyPoint(movingPlayer.camera.position.getX() + Math.sin(Math.PI / 2 - angle) / SLOW_SPEED, movingPlayer.camera.position.getY() + Math.cos(Math.PI / 2 - angle) / SLOW_SPEED);
-        if (curWall != null && MyMath.length(MyMath.perpendicular(newPosition, curWall)) < D_SHTRIH / 4) {
+        if (curWall != null && MyMath.length(MyMath.perpendicular(newPosition, curWall)) < movingPlayer.size) {
             MyLine proection = MyMath.proection(line, curWall);
             double dx = proection.getB().getX() - proection.getA().getX(), dy = proection.getB().getY() - proection.getA().getY();
             newPosition.setX(movingPlayer.camera.position.getX() + dx / (MyMath.length(line) * SLOW_SPEED));
@@ -254,9 +227,9 @@ public class Game {
             for (int j = 0; j < polygon.points.size() - 1; j++) {
                 MyLine wall = new MyLine(polygon.points.get(j), polygon.points.get(j + 1));
                 MyLine perp = MyMath.perpendicular(newPosition, wall);
-                if (MyMath.lineAndLine(perp, wall) != null && MyMath.length(perp) < D_SHTRIH / 4) {
+                if (MyMath.lineAndLine(perp, wall) != null && MyMath.length(perp) < movingPlayer.size) {
                     double perpAngle = MyMath.getAngle(perp);
-                    MyPoint newPoint = MyMath.lineByStartAndAngle(perp.getB(), perpAngle + Math.PI, D_SHTRIH / 4).getB();
+                    MyPoint newPoint = MyMath.lineByStartAndAngle(perp.getB(), perpAngle + Math.PI, movingPlayer.size).getB();
                     if (minX < newPoint.getX()) {
                         minX = newPoint.getX();
                     }
@@ -278,9 +251,9 @@ public class Game {
                     for (int j = 0; j < polygon.points.size() - 1; j++) {
                         MyLine wall = new MyLine(polygon.points.get(j), polygon.points.get(j + 1));
                         MyLine perp = MyMath.perpendicular(newPosition, wall);
-                        if (MyMath.lineAndLine(perp, wall) != null && MyMath.length(perp) < D_SHTRIH / 4) {
+                        if (MyMath.lineAndLine(perp, wall) != null && MyMath.length(perp) < movingPlayer.size) {
                             double perpAngle = MyMath.getAngle(perp);
-                            MyPoint newPoint = MyMath.lineByStartAndAngle(perp.getB(), perpAngle + Math.PI, D_SHTRIH / 4).getB();
+                            MyPoint newPoint = MyMath.lineByStartAndAngle(perp.getB(), perpAngle + Math.PI, movingPlayer.size).getB();
                             if (minX < newPoint.getX()) {
                                 minX = newPoint.getX();
                             }
@@ -300,8 +273,8 @@ public class Game {
         }
         for (MyCircle circle : circles) {
             double dist = MyMath.dist(newPosition, circle.center) - circle.radius;
-            if (Math.abs(dist) < D_SHTRIH / 4) {
-                double length = dist < 0 ? circle.radius - D_SHTRIH / 4 : circle.radius + D_SHTRIH / 4;
+            if (Math.abs(dist) < movingPlayer.size) {
+                double length = dist < 0 ? circle.radius - movingPlayer.size : circle.radius + movingPlayer.size;
                 MyPoint newPoint = MyMath.lineByStartAndAngle(circle.center, MyMath.getAngle(new MyLine(circle.center, newPosition)), length).getB();
                 if (minX < newPoint.getX()) {
                     minX = newPoint.getX();
@@ -324,6 +297,45 @@ public class Game {
             movingPlayer.camera.position.setY(Math.min(maxY, Math.max(minY, newPosition.getY())));
         }
         movingPlayer.updateSides();
+    }
+
+    public MyLine intersect(Player playerr, double angle) {
+        MyLine line = MyMath.lineByStartAndAngle(playerr.camera.position, angle, LENGTH_OF_LINE);
+        for (MyPolygon polygon : polygons) {
+            for (int j = 0; j < polygon.points.size() - 1; j++) {
+                MyLine wall = new MyLine(polygon.points.get(j), polygon.points.get(j + 1));
+                MyPoint intersection = MyMath.lineAndLine(line, wall);
+                if (intersection != null) {
+                    if (MyMath.dist(playerr.camera.position, intersection) < MyMath.length(line)) {
+                        line.setB(intersection);
+                    }
+                }
+            }
+        }
+        for (MyCircle circle : circles) {
+            MyPoint intersection = MyMath.lineAndCircle(line, circle);
+            if (intersection != null) {
+                if (MyMath.dist(playerr.camera.position, intersection) < MyMath.length(line)) {
+                    line.setB(intersection);
+                }
+            }
+        }
+        for (Player player : players) {
+            if (!player.equals(playerr)) {
+                for (MyPolygon polygon : player.sides) {
+                    for (int j = 0; j < polygon.points.size() - 1; j++) {
+                        MyLine wall = new MyLine(polygon.points.get(j), polygon.points.get(j + 1));
+                        MyPoint intersection = MyMath.lineAndLine(line, wall);
+                        if (intersection != null) {
+                            if (MyMath.dist(playerr.camera.position, intersection) < MyMath.length(line)) {
+                                line.setB(intersection);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return line;
     }
 
     public void startMovingForward() {
@@ -356,6 +368,10 @@ public class Game {
 
     public void stopMovingRight() {
         right = false;
+    }
+
+    public Player getMainPlayer() {
+        return mainPlayer;
     }
 
     public boolean isMoving() {

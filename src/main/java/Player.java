@@ -5,10 +5,12 @@ public class Player {
     private int health;
     final MyPolygon[] sides = new MyPolygon[4];
     final Weapon weapon;
+    final double size;
 
-    public Player(Camera camera, MyTexture front, MyTexture back, MyTexture left, MyTexture right) {
+    public Player(Camera camera, MyTexture front, MyTexture back, MyTexture left, MyTexture right, double size) {
         this.camera = camera;
-        this.weapon = new Weapon(100);
+        this.size = size;
+        this.weapon = new Weapon(10000);
         health = 100;
         sides[0] = new MyPolygon(List.of(new MyPoint(0, 0), new MyPoint(0, 0)), front);
         sides[1] = new MyPolygon(List.of(new MyPoint(0, 0), new MyPoint(0, 0)), back);
@@ -18,10 +20,10 @@ public class Player {
     }
 
     public void updateSides() {
-        MyPoint first = MyMath.lineByStartAndAngle(camera.position, camera.getAlpha() + Math.PI / 4, 4).getB();
-        MyPoint second = MyMath.lineByStartAndAngle(camera.position, camera.getAlpha() + 3 * Math.PI / 4, 4).getB();
-        MyPoint third = MyMath.lineByStartAndAngle(camera.position, camera.getAlpha() + 5 * Math.PI / 4, 4).getB();
-        MyPoint fourth = MyMath.lineByStartAndAngle(camera.position, camera.getAlpha() + 7 * Math.PI / 4, 4).getB();
+        MyPoint first = MyMath.lineByStartAndAngle(camera.position, camera.getAlpha() + Math.PI / 4, size).getB();
+        MyPoint second = MyMath.lineByStartAndAngle(camera.position, camera.getAlpha() + 3 * Math.PI / 4, size).getB();
+        MyPoint third = MyMath.lineByStartAndAngle(camera.position, camera.getAlpha() + 5 * Math.PI / 4, size).getB();
+        MyPoint fourth = MyMath.lineByStartAndAngle(camera.position, camera.getAlpha() + 7 * Math.PI / 4, size).getB();
         sides[0].points.get(0).setX(first.getX());
         sides[0].points.get(0).setY(first.getY());
         sides[0].points.get(1).setX(fourth.getX());
