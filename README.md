@@ -2,6 +2,6 @@
 
 Итак я решил написать псевдо 3д шутер. На данный момент реализована псевдо 3д графика с помошью метода ray-casting, текстурирование, коллизия с объектами (полигоны, окружности), стрельба, ходьба, поворот камерой. Также написан небольшой алгоритм поведений ботов
 
-![image](https://user-images.githubusercontent.com/78645533/188272832-ac8fe50f-f96b-4e33-8cd9-356bdb75a2a4.png)
-![image](https://user-images.githubusercontent.com/78645533/188272863-230fba64-7f70-4a65-8df2-2d349f3a0147.png)
+![image](https://user-images.githubusercontent.com/78645533/188282296-101b8fe3-8a3d-4de8-9f37-e7992e918b27.png)
+![image](https://user-images.githubusercontent.com/78645533/188282331-d3a99afb-243a-4c18-b1bc-953abdfc40f6.png)
 
