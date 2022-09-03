@@ -69,11 +69,10 @@ public class GamePanel extends JPanel {
             }
             if (isShooting) {
                 gunY = 2 * height / 3.0;
-                dy = height / 240.0;
                 isShooting = false;
             }
-            int dx = (int) (cursor.getX() - MouseInfo.getPointerInfo().getLocation().getX()), dy = (int) (cursor.getY() - MouseInfo.getPointerInfo().getLocation().getY());
-            if (Math.abs(dx) < width / 4 && Math.abs(dy) < height / 4) {
+            int dx = (int) (cursor.getX() - MouseInfo.getPointerInfo().getLocation().getX());
+            if (Math.abs(dx) < width / 4) {
                 game.turn(-Math.PI * ((double) dx / (double) width), game.getMainPlayer());
             }
             cursor = MouseInfo.getPointerInfo().getLocation();
