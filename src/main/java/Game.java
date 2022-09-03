@@ -17,18 +17,19 @@ public class Game {
     final ArrayList<MyCircle> circles = new ArrayList<>();
     final ArrayList<Player> players = new ArrayList<>();
     final double[] moveAngles = new double[3];
-    final double[] turnAngles = new double[3];
+    final double[] msAfterShot = new double[3];
     final MyTexture WOOD = new MyTexture("wood.png"), BOARD = new MyTexture("board.png"), STONE = new MyTexture("stone.png"), BRICK = new MyTexture("brick.png"),
             FEDYAS_FRONT = new MyTexture("fedyas_front.png", true), FEDYAS_BACK = new MyTexture("fedyas_back.png", true),
             FEDYAS_SIDE = new MyTexture("fedyas_side.png", true), DIMAS_FRONT = new MyTexture("dimas_front.png", true),
             DIMAS_BACK = new MyTexture("dimas_back.png", true), DIMAS_SIDE = new MyTexture("dimas_side.png", true),
             PASHAS_FRONT = new MyTexture("pashas_front.png", true), PASHAS_BACK = new MyTexture("pashas_back.png", true),
             PASHAS_SIDE = new MyTexture("pashas_side.png", true), OXXXYMIRON = new MyTexture("oxxxymiron.png", true);
+    private int kills = 0, deaths = 0;
     private boolean forward, backward, left, right;
     private Player mainPlayer;
 
     public Game() {
-        players.add(new Player(new Camera(new MyPoint(60, 230), 0), OXXXYMIRON, OXXXYMIRON, OXXXYMIRON, OXXXYMIRON, 4));
+        players.add(new Player(new Camera(new MyPoint(60, 160), 0), OXXXYMIRON, OXXXYMIRON, OXXXYMIRON, OXXXYMIRON, 4));
         players.add(new Player(new Camera(new MyPoint(250, 210), Math.PI), FEDYAS_FRONT, FEDYAS_BACK, FEDYAS_SIDE, FEDYAS_SIDE, 4));
         players.add(new Player(new Camera(new MyPoint(250, 250), Math.PI), DIMAS_FRONT, DIMAS_BACK, DIMAS_SIDE, DIMAS_SIDE, 4));
         players.add(new Player(new Camera(new MyPoint(250, 290), Math.PI), PASHAS_FRONT, PASHAS_BACK, PASHAS_SIDE, PASHAS_SIDE, 7));
@@ -65,7 +66,6 @@ public class Game {
         Timer timer1 = new Timer(1000, null);
         timer1.addActionListener(e -> {
             for (int i = 0; i < 3; i++) {
-                turnAngles[i] = 7 * (new Random().nextDouble() % (2 * Math.PI) - Math.PI) / 1000;
                 moveAngles[i] = (double) (new Random().nextInt() % 4) * (Math.PI / 4);
             }
         });
@@ -74,8 +74,65 @@ public class Game {
         timer.addActionListener(e -> {
             for (Player player : players) {
                 if (!player.equals(mainPlayer)) {
-                    turn(Math.abs(turnAngles[players.indexOf(player) - 1]), player);
                     move(player.camera.getAlpha() + moveAngles[players.indexOf(player) - 1], player);
+                    double minD = Integer.MAX_VALUE;
+                    Player closestPlayer = null;
+                    ArrayList<Player> visiblePlayers = new ArrayList<>();
+                    for (Player player2 : players) {
+                        if (!player.equals(player2)) {
+                            double angle = MyMath.getAngle(new MyLine(player.camera.position, player2.camera.position));
+                            MyPoint endPoint = intersect(player, angle).getB();
+                            outbreak:
+                            for (MyPolygon polygon : player2.sides) {
+                                for (int j = 0; j < polygon.points.size() - 1; j++) {
+                                    MyLine wall = new MyLine(polygon.points.get(j), polygon.points.get(j + 1));
+                                    if (MyMath.pointInLine(endPoint, wall)) {
+                                        visiblePlayers.add(player2);
+                                        break outbreak;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    ArrayList<Player> curList = visiblePlayers;
+                    if (visiblePlayers.size() == 0) {
+                        curList = players;
+                    }
+                    for (Player player2 : curList) {
+                        double dist = (MyMath.getAngle(new MyLine(player.camera.position, player2.camera.position)) - player.camera.getAlpha()) % (2 * Math.PI);
+                        if (dist > Math.PI) {
+                            dist = dist - 2 * Math.PI;
+                        } else if (dist < -Math.PI) {
+                            dist = dist + 2 * Math.PI;
+                        }
+                        if (!player.equals(player2) && Math.abs(dist) < minD) {
+                            minD = Math.abs(dist);
+                            closestPlayer = player2;
+                        }
+                    }
+                    assert closestPlayer != null;
+                    double turnAngle = (MyMath.getAngle(new MyLine(player.camera.position, closestPlayer.camera.position)) - player.camera.getAlpha()) % (2 * Math.PI);
+                    if (turnAngle > Math.PI) {
+                        turnAngle = turnAngle - 2 * Math.PI;
+                    } else if (turnAngle < -Math.PI) {
+                        turnAngle = turnAngle + 2 * Math.PI;
+                    }
+                    turn(turnAngle / 10, player);
+                    if (msAfterShot[players.indexOf(player) - 1] < 100) {
+                        msAfterShot[players.indexOf(player) - 1] += 7;
+                    } else {
+                        outbreak:
+                        for (MyPolygon polygon : closestPlayer.sides) {
+                            for (int j = 0; j < polygon.points.size() - 1; j++) {
+                                MyLine wall = new MyLine(polygon.points.get(j), polygon.points.get(j + 1));
+                                if (MyMath.pointInLine(intersect(player, player.camera.getAlpha()).getB(), wall)) {
+                                    shoot(player);
+                                    msAfterShot[players.indexOf(player) - 1] = 0;
+                                    break outbreak;
+                                }
+                            }
+                        }
+                    }
                 }
             }
             for (int i = 0; i < COUNT_OF_LINES; i++) {
@@ -121,6 +178,9 @@ public class Game {
                         if (MyMath.pointInLine(line.getB(), wall)) {
                             player.setHealth(player.getHealth() - 30);
                             if (player.getHealth() <= 0) {
+                                if (shootingPlayer.equals(mainPlayer)) {
+                                    kills++;
+                                }
                                 kill(player);
                             }
                             return;
@@ -135,6 +195,7 @@ public class Game {
         Player newPlayer = new Player(new Camera(randomPoint(deadPlayer.size), new Random().nextDouble() % 2 * Math.PI), deadPlayer.sides[0].texture, deadPlayer.sides[2].texture, deadPlayer.sides[1].texture, deadPlayer.sides[3].texture, deadPlayer.size);
         if (deadPlayer.equals(mainPlayer)) {
             mainPlayer = newPlayer;
+            deaths++;
         }
         players.set(players.indexOf(deadPlayer), newPlayer);
     }
@@ -370,11 +431,19 @@ public class Game {
         right = false;
     }
 
+    public boolean isMoving() {
+        return forward || backward || left || right;
+    }
+
     public Player getMainPlayer() {
         return mainPlayer;
     }
 
-    public boolean isMoving() {
-        return forward || backward || left || right;
+    public int getKills() {
+        return kills;
+    }
+
+    public int getDeaths() {
+        return deaths;
     }
 }
