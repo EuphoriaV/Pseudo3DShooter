@@ -7,7 +7,7 @@ public class Player {
     final Weapon weapon;
     final double size;
 
-    public Player(Camera camera, MyTexture front, MyTexture back, MyTexture left, MyTexture right, double size) {
+    public Player(Camera camera, MyTexture front, MyTexture back, MyTexture right, MyTexture left, double size) {
         this.camera = camera;
         this.size = size;
         this.weapon = new Weapon(10000);

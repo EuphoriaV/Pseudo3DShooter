@@ -30,9 +30,9 @@ public class Game {
 
     public Game() {
         players.add(new Player(new Camera(new MyPoint(60, 160), 0), OXXXYMIRON, OXXXYMIRON, OXXXYMIRON, OXXXYMIRON, 4));
-        players.add(new Player(new Camera(new MyPoint(250, 210), Math.PI), FEDYAS_FRONT, FEDYAS_BACK, FEDYAS_SIDE, FEDYAS_SIDE, 4));
+        players.add(new Player(new Camera(new MyPoint(250, 210), Math.PI), FEDYAS_FRONT, FEDYAS_BACK, FEDYAS_SIDE, FEDYAS_SIDE, 3));
         players.add(new Player(new Camera(new MyPoint(250, 250), Math.PI), DIMAS_FRONT, DIMAS_BACK, DIMAS_SIDE, DIMAS_SIDE, 4));
-        players.add(new Player(new Camera(new MyPoint(250, 290), Math.PI), PASHAS_FRONT, PASHAS_BACK, PASHAS_SIDE, PASHAS_SIDE, 7));
+        players.add(new Player(new Camera(new MyPoint(250, 290), Math.PI), PASHAS_FRONT, PASHAS_BACK, PASHAS_SIDE, PASHAS_SIDE, 5));
         mainPlayer = players.get(0);
 
         circles.add(new MyCircle(new MyPoint(50, 50), 50, WOOD));

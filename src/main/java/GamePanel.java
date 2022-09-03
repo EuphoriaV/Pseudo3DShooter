@@ -97,6 +97,9 @@ public class GamePanel extends JPanel {
             MyLine curLine = game.lines[i];
             double numOfColumn = -1;
             double dist = MyMath.length(curLine);
+            double heightOnScreen = height * game.D_SHTRIH / dist;
+            boolean isPlayer = false;
+            MyTexture curTexture = null;
             outbreak:
             for (MyPolygon polygon : game.polygons) {
                 for (int j = 0; j < polygon.points.size() - 1; j++) {
@@ -107,8 +110,7 @@ public class GamePanel extends JPanel {
                         } else {
                             numOfColumn = MyMath.dist(wall.getA(), curLine.getB()) / 30;
                         }
-                        double heightOnScreen = height * game.D_SHTRIH / dist;
-                        g2d.drawImage(polygon.texture.getImage()[(int) (numOfColumn * polygon.texture.getImage().length) % polygon.texture.getImage().length], pixel, (int) vertical - (int) heightOnScreen, 1, 2 * (int) heightOnScreen, null);
+                        curTexture = polygon.texture;
                         break outbreak;
                     }
                 }
@@ -126,8 +128,8 @@ public class GamePanel extends JPanel {
                                     } else {
                                         numOfColumn = MyMath.dist(wall.getA(), curLine.getB()) / 30;
                                     }
-                                    double heightOnScreen = height * game.D_SHTRIH / dist;
-                                    g2d.drawImage(polygon.texture.getImage()[(int) (numOfColumn * polygon.texture.getImage().length) % polygon.texture.getImage().length], pixel, (int) vertical - (int) heightOnScreen, 1, 2 * (int) heightOnScreen, null);
+                                    curTexture = polygon.texture;
+                                    isPlayer = true;
                                     break outbreak;
                                 }
                             }
@@ -145,10 +147,16 @@ public class GamePanel extends JPanel {
                         } else {
                             numOfColumn = 4 * angle / Math.PI;
                         }
-                        double heightOnScreen = height * game.D_SHTRIH / dist;
-                        g2d.drawImage(circle.texture.getImage()[(int) (numOfColumn * circle.texture.getImage().length) % circle.texture.getImage().length], pixel, (int) vertical - (int) heightOnScreen, 1, 2 * (int) heightOnScreen, null);
+                        curTexture = circle.texture;
                         break;
                     }
+                }
+            }
+            if (curTexture != null) {
+                g2d.drawImage(curTexture.getImage()[(int) (numOfColumn * curTexture.getImage().length) % curTexture.getImage().length], pixel, (int) vertical - (int) heightOnScreen, 1, 2 * (int) heightOnScreen, null);
+                if (!isPlayer) {
+                    g2d.setPaint(new Color(0, 0, 0, Math.min((int) (255 * (dist / game.LENGTH_OF_LINE)), 255)));
+                    g2d.fillRect(pixel, (int) vertical - (int) heightOnScreen, 1, 2 * (int) heightOnScreen);
                 }
             }
         }

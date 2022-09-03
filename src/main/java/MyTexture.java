@@ -9,7 +9,6 @@ public class MyTexture {
     final boolean stretched;
     private Image[] image;
 
-
     public MyTexture(String name) {
         this.stretched = false;
         getImage(name);
@@ -23,7 +22,7 @@ public class MyTexture {
     private void getImage(String name) {
         BufferedImage img = BLANK_IMG;
         try {
-            img = ImageIO.read(new File("images/"+name));
+            img = ImageIO.read(new File("images/" + name));
         } catch (IOException e) {
             e.printStackTrace();
         }
