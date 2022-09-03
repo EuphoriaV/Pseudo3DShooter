@@ -4,6 +4,5 @@
 
 Боты умеют двигаться, но пока хаотично
 ![image](https://user-images.githubusercontent.com/78645533/188272832-ac8fe50f-f96b-4e33-8cd9-356bdb75a2a4.png)
-
-![image](https://user-images.githubusercontent.com/78645533/187956599-31af553f-859a-48e2-a8e3-9d8741af6a54.png)
+![image](https://user-images.githubusercontent.com/78645533/188272863-230fba64-7f70-4a65-8df2-2d349f3a0147.png)
 
