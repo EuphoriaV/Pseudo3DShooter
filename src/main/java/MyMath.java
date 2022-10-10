@@ -15,7 +15,7 @@ public class MyMath {
     }
 
     public static boolean pointInCircle(MyPoint point, MyCircle circle) {
-        return dist(point, circle.center) <= circle.radius + 0.1;
+        return dist(point, circle.getCenter()) <= circle.getRadius() + 0.1;
     }
 
     public static MyLine lineByStartAndAngle(MyPoint start, double alpha, double length) {
@@ -46,7 +46,7 @@ public class MyMath {
 
     public static MyPoint lineAndCircle(MyLine line, MyCircle circle) {
         LineEquation equation1 = new LineEquation(line);
-        double x0 = circle.center.getX(), y0 = circle.center.getY(), r = circle.radius, a = equation1.a, b = equation1.b, c = equation1.c;
+        double x0 = circle.getCenter().getX(), y0 = circle.getCenter().getY(), r = circle.getRadius(), a = equation1.a, b = equation1.b, c = equation1.c;
         MyPoint first, second;
         if (a == 0) {
             //для вертикальных прямых отдельно, т.к. в общем случае произойдет деление на 0

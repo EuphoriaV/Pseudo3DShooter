@@ -6,8 +6,12 @@ import java.io.IOException;
 
 public class MyTexture {
     final BufferedImage BLANK_IMG = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
-    final boolean stretched;
+    private final boolean stretched;
     private Image[] image;
+
+    public boolean isStretched() {
+        return stretched;
+    }
 
     public MyTexture(String name) {
         this.stretched = false;

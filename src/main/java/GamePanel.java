@@ -7,9 +7,9 @@ import java.awt.image.BufferedImage;
 public class GamePanel extends JPanel {
     final BufferedImage BLANK_IMG = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
     final Cursor BLANK_CURSOR = Toolkit.getDefaultToolkit().createCustomCursor(BLANK_IMG, new Point(0, 0), "blank cursor");
-    final Game game;
-    final int width, height;
-    final double vertical;
+    private final Game game;
+    private final int width, height;
+    private final double vertical;
     private Point cursor;
     private Robot robot;
     private double gunY, dy;
@@ -94,41 +94,41 @@ public class GamePanel extends JPanel {
         g2d.fillRect(0, (int) vertical, width, height);
         for (int pixel = 0; pixel < width; pixel++) {
             int i = (int) (Math.min(game.COUNT_OF_LINES - 1, game.COUNT_OF_LINES * ((double) pixel / (double) width)));
-            MyLine curLine = game.lines[i];
+            MyLine curLine = game.getLines()[i];
             double numOfColumn = -1;
             double dist = MyMath.length(curLine);
             double heightOnScreen = height * game.D_SHTRIH / dist;
             boolean isPlayer = false;
             MyTexture curTexture = null;
             outbreak:
-            for (MyPolygon polygon : game.polygons) {
-                for (int j = 0; j < polygon.points.size() - 1; j++) {
-                    MyLine wall = new MyLine(polygon.points.get(j), polygon.points.get(j + 1));
+            for (MyPolygon polygon : game.getPolygons()) {
+                for (int j = 0; j < polygon.getPoints().size() - 1; j++) {
+                    MyLine wall = new MyLine(polygon.getPoints().get(j), polygon.getPoints().get(j + 1));
                     if (MyMath.pointInLine(curLine.getB(), wall)) {
-                        if (polygon.texture.stretched) {
+                        if (polygon.getTexture().isStretched()) {
                             numOfColumn = MyMath.dist(wall.getA(), curLine.getB()) / MyMath.length(wall);
                         } else {
                             numOfColumn = MyMath.dist(wall.getA(), curLine.getB()) / 30;
                         }
-                        curTexture = polygon.texture;
+                        curTexture = polygon.getTexture();
                         break outbreak;
                     }
                 }
             }
             if (numOfColumn == -1) {
                 outbreak:
-                for (Player player : game.players) {
+                for (Player player : game.getPlayers()) {
                     if (!player.equals(game.getMainPlayer())) {
-                        for (MyPolygon polygon : player.sides) {
-                            for (int j = 0; j < polygon.points.size() - 1; j++) {
-                                MyLine wall = new MyLine(polygon.points.get(j), polygon.points.get(j + 1));
+                        for (MyPolygon polygon : player.getSides()) {
+                            for (int j = 0; j < polygon.getPoints().size() - 1; j++) {
+                                MyLine wall = new MyLine(polygon.getPoints().get(j), polygon.getPoints().get(j + 1));
                                 if (MyMath.pointInLine(curLine.getB(), wall)) {
-                                    if (polygon.texture.stretched) {
+                                    if (polygon.getTexture().isStretched()) {
                                         numOfColumn = MyMath.dist(wall.getA(), curLine.getB()) / MyMath.length(wall);
                                     } else {
                                         numOfColumn = MyMath.dist(wall.getA(), curLine.getB()) / 30;
                                     }
-                                    curTexture = polygon.texture;
+                                    curTexture = polygon.getTexture();
                                     isPlayer = true;
                                     break outbreak;
                                 }
@@ -138,16 +138,16 @@ public class GamePanel extends JPanel {
                 }
             }
             if (numOfColumn == -1) {
-                for (MyCircle circle : game.circles) {
+                for (MyCircle circle : game.getCircles()) {
                     if (MyMath.pointInCircle(curLine.getB(), circle)) {
-                        double angle = MyMath.getAngle(new MyLine(circle.center, curLine.getB()));
+                        double angle = MyMath.getAngle(new MyLine(circle.getCenter(), curLine.getB()));
                         angle += Math.PI;
-                        if (circle.texture.stretched) {
+                        if (circle.getTexture().isStretched()) {
                             numOfColumn = 0.5 * angle / Math.PI;
                         } else {
                             numOfColumn = 4 * angle / Math.PI;
                         }
-                        curTexture = circle.texture;
+                        curTexture = circle.getTexture();
                         break;
                     }
                 }
@@ -164,24 +164,24 @@ public class GamePanel extends JPanel {
         g2d.setPaint(Color.BLACK);
         g2d.fillRect(0, 0, height / 6, height / 6);
         g2d.setPaint(Color.WHITE);
-        for (MyPolygon polygon : game.polygons) {
-            for (int j = 0; j < polygon.points.size() - 1; j++) {
-                MyLine wall = new MyLine(polygon.points.get(j), polygon.points.get(j + 1));
+        for (MyPolygon polygon : game.getPolygons()) {
+            for (int j = 0; j < polygon.getPoints().size() - 1; j++) {
+                MyLine wall = new MyLine(polygon.getPoints().get(j), polygon.getPoints().get(j + 1));
                 g2d.drawLine((int) (wall.getA().getX() * coef),
                         (int) (wall.getA().getY() * coef),
                         (int) (wall.getB().getX() * coef),
                         (int) (wall.getB().getY() * coef));
             }
         }
-        for (Player player : game.players) {
+        for (Player player : game.getPlayers()) {
             if (player.equals(game.getMainPlayer())) {
                 g2d.setPaint(Color.GREEN);
             } else {
                 g2d.setPaint(Color.RED);
             }
-            for (MyPolygon polygon : player.sides) {
-                for (int j = 0; j < polygon.points.size() - 1; j++) {
-                    MyLine wall = new MyLine(polygon.points.get(j), polygon.points.get(j + 1));
+            for (MyPolygon polygon : player.getSides()) {
+                for (int j = 0; j < polygon.getPoints().size() - 1; j++) {
+                    MyLine wall = new MyLine(polygon.getPoints().get(j), polygon.getPoints().get(j + 1));
                     g2d.drawLine((int) (wall.getA().getX() * coef),
                             (int) (wall.getA().getY() * coef),
                             (int) (wall.getB().getX() * coef),
@@ -190,18 +190,18 @@ public class GamePanel extends JPanel {
             }
         }
         g2d.setPaint(Color.WHITE);
-        for (MyCircle circle : game.circles) {
-            g2d.drawOval((int) ((circle.center.getX() - circle.radius) * coef),
-                    (int) ((circle.center.getY() - circle.radius) * coef),
-                    (int) (2 * circle.radius * coef),
-                    (int) (2 * circle.radius * coef));
+        for (MyCircle circle : game.getCircles()) {
+            g2d.drawOval((int) ((circle.getCenter().getX() - circle.getRadius()) * coef),
+                    (int) ((circle.getCenter().getY() - circle.getRadius()) * coef),
+                    (int) (2 * circle.getRadius() * coef),
+                    (int) (2 * circle.getRadius() * coef));
         }
         g2d.setStroke(new BasicStroke(2));
         g2d.drawLine(width / 2, height / 2 - 5, width / 2, height / 2 + 5);
         g2d.drawLine(width / 2 - 5, height / 2, width / 2 + 5, height / 2);
         g2d.drawImage(new ImageIcon("images/gun.png").getImage(), 2 * width / 3, (int) gunY, width / 3, height / 3, null);
         g2d.setFont(new Font("Verdana", Font.BOLD, height / 20));
-        g2d.drawString(String.valueOf(game.getMainPlayer().weapon.getAmmo()), width / 50, 89 * height / 100);
+        g2d.drawString(String.valueOf(game.getMainPlayer().getWeapon().getAmmo()), width / 50, 89 * height / 100);
         g2d.drawString("Kills: " + game.getKills(), width / 50, 79 * height / 100);
         g2d.drawString("Deaths: " + game.getDeaths(), width / 50, 69 * height / 100);
         g2d.drawImage(new ImageIcon("images/ammo.png").getImage(), 0, 84 * height / 100, width / 50, height / 20, null);

@@ -1,10 +1,14 @@
 public class Camera {
-    final MyPoint position;
+    private final MyPoint position;
     private double alpha;
 
     public Camera(MyPoint point, double alpha) {
         this.position = point;
         this.alpha = alpha;
+    }
+
+    public MyPoint getPosition() {
+        return position;
     }
 
     public double getAlpha() {

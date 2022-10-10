@@ -4,7 +4,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 public class GameFrame extends JFrame {
-    public GameFrame(Game game) {
+    public GameFrame() {
+        Game game = new Game();
         addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
